@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Controle de Estoque</title>
+  <style>
+    :root {
+      --bg-color: #f5f7fb;
+      --chip-bg: #ffffff;
+      --accent: #3f51b5;
+      --accent-light: #5c6bc0;
+      --text: #1f2933;
+      --muted: #52606d;
+      --border-radius: 18px;
+      --shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+    }
+
+    * {
+      box-sizing: border-box;
+      font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    body {
+      margin: 0;
+      padding: 24px;
+      background: linear-gradient(135deg, #e3eeff 0%, #f8f9ff 100%);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    h1 {
+      text-align: center;
+      color: var(--accent);
+      margin-bottom: 24px;
+      font-weight: 600;
+      letter-spacing: 1px;
+    }
+
+    .layout-grid {
+      display: grid;
+      gap: 24px;
+      max-width: 1200px;
+      margin: 0 auto 48px auto;
+    }
+
+    .chip {
+      background: var(--chip-bg);
+      border-radius: var(--border-radius);
+      padding: 18px 22px;
+      box-shadow: var(--shadow);
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .chip-section-title {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .inputs-row {
+      display: grid;
+      gap: 16px;
+    }
+
+    .inputs-row.double {
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    }
+
+    label {
+      display: flex;
+      flex-direction: column;
+      font-size: 0.9rem;
+      color: var(--muted);
+      gap: 6px;
+    }
+
+    input[type="text"],
+    input[type="number"],
+    select {
+      border: 1px solid #d1d5db;
+      border-radius: 12px;
+      padding: 12px 14px;
+      font-size: 1rem;
+      transition: border 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    input:focus,
+    select:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(63, 81, 181, 0.2);
+    }
+
+    .button {
+      background: var(--accent);
+      color: white;
+      border: none;
+      padding: 12px 16px;
+      border-radius: 12px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .button.secondary {
+      background: #e5e7eb;
+      color: var(--text);
+    }
+
+    .button:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 16px rgba(63, 81, 181, 0.25);
+    }
+
+    .button.secondary:hover {
+      box-shadow: 0 8px 16px rgba(148, 163, 184, 0.25);
+    }
+
+    .button-group {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+    }
+
+    .stats-grid {
+      display: grid;
+      gap: 12px;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    }
+
+    .stat-card {
+      background: rgba(63, 81, 181, 0.07);
+      border-radius: 16px;
+      padding: 14px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .stat-label {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      color: var(--muted);
+      letter-spacing: 1px;
+      font-weight: 600;
+    }
+
+    .stat-value {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: var(--accent-light);
+      word-break: break-word;
+    }
+
+    .table-wrapper {
+      overflow-x: auto;
+      border-radius: 18px;
+      box-shadow: var(--shadow);
+      background: var(--chip-bg);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 320px;
+    }
+
+    thead {
+      background: var(--accent);
+      color: white;
+    }
+
+    th,
+    td {
+      padding: 14px 18px;
+      text-align: left;
+    }
+
+    tbody tr:nth-child(even) {
+      background: rgba(63, 81, 181, 0.08);
+    }
+
+    .sort-button {
+      border: none;
+      background: rgba(255, 255, 255, 0.25);
+      color: white;
+      border-radius: 12px;
+      padding: 4px 10px;
+      margin-left: 10px;
+      cursor: pointer;
+      font-size: 0.85rem;
+    }
+
+    .table-title {
+      font-weight: 600;
+      color: var(--muted);
+      padding: 16px 20px 0 20px;
+    }
+
+    @media (max-width: 640px) {
+      body {
+        padding: 16px;
+      }
+
+      .chip {
+        padding: 16px;
+      }
+    }
+
+    /* Print layout */
+    @media print {
+      body {
+        background: white;
+        padding: 0;
+      }
+
+      .layout-grid,
+      .table-section {
+        display: none;
+      }
+
+      #print-area {
+        display: block !important;
+        padding: 32px;
+        font-size: 12pt;
+      }
+
+      #print-title {
+        font-size: 18pt;
+        font-weight: 700;
+        margin-bottom: 18px;
+      }
+
+      .print-columns {
+        display: flex;
+        gap: 24px;
+      }
+
+      .print-column {
+        flex: 1;
+      }
+
+      .print-column table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+
+      .print-column th,
+      .print-column td {
+        border: 1px solid #1f2933;
+        padding: 8px;
+        text-align: left;
+      }
+    }
+
+    #print-area {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <h1>Controle de Estoque</h1>
+
+  <div class="layout-grid">
+    <div class="chip" id="data-entry-chip">
+      <div class="chip-section-title">Inserção de Dados</div>
+      <div class="inputs-row">
+        <label for="auto-code">
+          Campo Automático (Leitor)
+          <input id="auto-code" type="text" autocomplete="off" spellcheck="false" placeholder="Aproxime o leitor aqui" />
+        </label>
+      </div>
+      <div class="inputs-row double">
+        <label for="manual-code">
+          Código Manual
+          <input id="manual-code" type="text" placeholder="Informe o código" />
+        </label>
+        <label for="manual-qty">
+          Quantidade
+          <input id="manual-qty" type="number" min="1" value="1" />
+        </label>
+        <div style="display:flex; align-items:flex-end;">
+          <button class="button" id="manual-add">Adicionar</button>
+        </div>
+      </div>
+      <div class="inputs-row double">
+        <label for="store-select">
+          Loja
+          <select id="store-select">
+            <option value="Jorel Chicuta">Jorel Chicuta</option>
+            <option value="Jorel Avenida">Jorel Avenida</option>
+            <option value="Exótica">Exótica</option>
+          </select>
+        </label>
+        <label for="product-select">
+          Produto
+          <select id="product-select">
+            <option value="Anel">Anel</option>
+            <option value="Brinco">Brinco</option>
+            <option value="Pingente">Pingente</option>
+            <option value="Corrente">Corrente</option>
+            <option value="Pulseira">Pulseira</option>
+            <option value="Aliança">Aliança</option>
+            <option value="Relógio">Relógio</option>
+            <option value="Armação">Armação</option>
+            <option value="Solar">Solar</option>
+            <option value="Outro">Outro</option>
+          </select>
+        </label>
+      </div>
+    </div>
+
+    <div class="chip">
+      <div class="chip-section-title">Resumo Atual</div>
+      <div class="stats-grid">
+        <div class="stat-card">
+          <span class="stat-label">Quantidade Total</span>
+          <span class="stat-value" id="total-quantity">0</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">Último Código</span>
+          <span class="stat-value" id="last-code">---</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">Loja</span>
+          <span class="stat-value" id="summary-store">Jorel Chicuta</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">Produto</span>
+          <span class="stat-value" id="summary-product">Anel</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="chip">
+      <div class="chip-section-title">Salvar e Exportar</div>
+      <div class="button-group">
+        <button class="button" id="print-pdf">Imprimir PDF</button>
+        <button class="button" id="save-data">Salvar</button>
+        <button class="button secondary" id="reset-data">Resetar</button>
+        <button class="button" id="download-table">Baixar Tabela</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="table-section">
+    <div class="table-title">Tabela de Códigos</div>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>
+              Código
+              <button class="sort-button" id="sort-toggle">Ordem ↑</button>
+            </th>
+            <th>Quantidade</th>
+          </tr>
+        </thead>
+        <tbody id="table-body"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div id="print-area">
+    <div id="print-title"></div>
+    <div class="print-columns">
+      <div class="print-column">
+        <table>
+          <thead>
+            <tr><th>Código</th><th>Quantidade</th></tr>
+          </thead>
+          <tbody id="print-table-left"></tbody>
+        </table>
+      </div>
+      <div class="print-column">
+        <table>
+          <thead>
+            <tr><th>Código</th><th>Quantidade</th></tr>
+          </thead>
+          <tbody id="print-table-right"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const autoInput = document.getElementById('auto-code');
+    const manualCodeInput = document.getElementById('manual-code');
+    const manualQtyInput = document.getElementById('manual-qty');
+    const manualAddButton = document.getElementById('manual-add');
+    const storeSelect = document.getElementById('store-select');
+    const productSelect = document.getElementById('product-select');
+    const totalQuantityEl = document.getElementById('total-quantity');
+    const lastCodeEl = document.getElementById('last-code');
+    const summaryStoreEl = document.getElementById('summary-store');
+    const summaryProductEl = document.getElementById('summary-product');
+    const tableBody = document.getElementById('table-body');
+    const sortToggle = document.getElementById('sort-toggle');
+    const printButton = document.getElementById('print-pdf');
+    const saveButton = document.getElementById('save-data');
+    const resetButton = document.getElementById('reset-data');
+    const downloadButton = document.getElementById('download-table');
+    const printTitleEl = document.getElementById('print-title');
+    const printLeftBody = document.getElementById('print-table-left');
+    const printRightBody = document.getElementById('print-table-right');
+
+    let dataEntries = [];
+    let sortDirection = 'asc';
+    let scanStart = null;
+
+    const STORAGE_KEY = 'controle-estoque-data';
+
+    const getCurrentTitle = () => {
+      const today = new Date();
+      const dateStr = today.toLocaleDateString('pt-BR');
+      return `${storeSelect.value}-${productSelect.value}-${dateStr}`;
+    };
+
+    const sanitizeCode = (value) => {
+      return value.replace(/[^\w-]/gi, '').toUpperCase();
+    };
+
+    const focusAutoInput = () => {
+      setTimeout(() => autoInput.focus({ preventScroll: true }), 50);
+    };
+
+    const updateSummary = () => {
+      const total = dataEntries.reduce((sum, entry) => sum + entry.quantity, 0);
+      totalQuantityEl.textContent = total.toString();
+      summaryStoreEl.textContent = storeSelect.value;
+      summaryProductEl.textContent = productSelect.value;
+    };
+
+    const updateLastCode = (code, durationMs, mode) => {
+      if (!code) {
+        lastCodeEl.textContent = '---';
+        return;
+      }
+      if (mode === 'manual' || durationMs == null) {
+        lastCodeEl.textContent = `${code} (Manual)`;
+      } else {
+        const seconds = (durationMs / 1000).toFixed(2);
+        lastCodeEl.textContent = `${code} (Tempo: ${seconds}s)`;
+      }
+    };
+
+    const renderTable = () => {
+      const sorted = [...dataEntries].sort((a, b) => {
+        const comparison = a.code.localeCompare(b.code, 'pt-BR', {
+          numeric: true,
+          sensitivity: 'base'
+        });
+        return sortDirection === 'asc' ? comparison : -comparison;
+      });
+      tableBody.innerHTML = '';
+      sorted.forEach((entry) => {
+        const row = document.createElement('tr');
+        const codeCell = document.createElement('td');
+        const qtyCell = document.createElement('td');
+        codeCell.textContent = entry.code;
+        qtyCell.textContent = entry.quantity;
+        row.append(codeCell, qtyCell);
+        tableBody.append(row);
+      });
+      updateSummary();
+    };
+
+    const syncStorage = () => {
+      const payload = {
+        entries: dataEntries,
+        store: storeSelect.value,
+        product: productSelect.value,
+        lastCode: lastCodeEl.textContent
+      };
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+    };
+
+    const loadStorage = () => {
+      const stored = localStorage.getItem(STORAGE_KEY);
+      if (!stored) return;
+      try {
+        const payload = JSON.parse(stored);
+        if (payload.entries && Array.isArray(payload.entries)) {
+          dataEntries = payload.entries.map((item) => ({
+            code: item.code,
+            quantity: Number(item.quantity) || 0
+          })).filter((item) => item.code && item.quantity > 0);
+        }
+        if (payload.store) {
+          storeSelect.value = payload.store;
+        }
+        if (payload.product) {
+          productSelect.value = payload.product;
+        }
+        renderTable();
+        if (payload.lastCode) {
+          lastCodeEl.textContent = payload.lastCode;
+        }
+      } catch (error) {
+        console.error('Erro ao carregar dados salvos', error);
+      }
+    };
+
+    const upsertEntry = (code, quantity) => {
+      if (!code || quantity <= 0) return;
+      const sanitized = sanitizeCode(code);
+      if (!sanitized) return;
+      const existing = dataEntries.find((item) => item.code === sanitized);
+      if (existing) {
+        existing.quantity += quantity;
+      } else {
+        dataEntries.push({ code: sanitized, quantity });
+      }
+      sortDirection = 'asc';
+      sortToggle.textContent = 'Ordem ↑';
+      renderTable();
+      updateLastCode(sanitized, lastEntryDurationMs, lastEntryMode);
+      lastEntryDurationMs = null;
+      lastEntryMode = 'auto';
+      syncStorage();
+    };
+
+    let lastEntryDurationMs = null;
+    let lastEntryMode = 'auto';
+
+    autoInput.addEventListener('keydown', (event) => {
+      if (event.key === 'Tab') {
+        event.preventDefault();
+      }
+      if ((event.ctrlKey || event.metaKey) && ['w', 'W', 'r', 'R'].includes(event.key)) {
+        event.preventDefault();
+      }
+      if (event.key === 'F5' || event.key === 'F11' || (event.altKey && event.key === 'F4')) {
+        event.preventDefault();
+      }
+      const allowedControlKeys = ['Backspace', 'Enter', 'Delete', 'ArrowLeft', 'ArrowRight'];
+      const isAlphaNumeric = /[\w-]/.test(event.key);
+      if (!isAlphaNumeric && !allowedControlKeys.includes(event.key)) {
+        event.preventDefault();
+      }
+      if (!scanStart && isAlphaNumeric) {
+        scanStart = performance.now();
+      }
+      if (event.key === 'Enter') {
+        event.preventDefault();
+        const sanitized = sanitizeCode(autoInput.value);
+        if (sanitized) {
+          const scanEnd = performance.now();
+          lastEntryDurationMs = scanStart ? (scanEnd - scanStart) : 0;
+          lastEntryMode = 'auto';
+          upsertEntry(sanitized, 1);
+        }
+        autoInput.value = '';
+        scanStart = null;
+        focusAutoInput();
+      }
+    });
+
+    autoInput.addEventListener('input', () => {
+      const sanitized = sanitizeCode(autoInput.value);
+      if (sanitized !== autoInput.value) {
+        autoInput.value = sanitized;
+      }
+    });
+
+    manualAddButton.addEventListener('click', () => {
+      const code = sanitizeCode(manualCodeInput.value);
+      const quantity = Number(manualQtyInput.value) || 0;
+      if (!code) {
+        alert('Informe um código válido.');
+        return;
+      }
+      if (quantity <= 0) {
+        alert('Informe uma quantidade válida.');
+        return;
+      }
+      lastEntryDurationMs = null;
+      lastEntryMode = 'manual';
+      upsertEntry(code, quantity);
+      manualCodeInput.value = '';
+      manualQtyInput.value = '1';
+      focusAutoInput();
+    });
+
+    manualCodeInput.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter') {
+        event.preventDefault();
+        manualAddButton.click();
+      }
+    });
+
+    manualQtyInput.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter') {
+        event.preventDefault();
+        manualAddButton.click();
+      }
+    });
+
+    storeSelect.addEventListener('change', () => {
+      summaryStoreEl.textContent = storeSelect.value;
+      syncStorage();
+    });
+
+    productSelect.addEventListener('change', () => {
+      summaryProductEl.textContent = productSelect.value;
+      syncStorage();
+    });
+
+    sortToggle.addEventListener('click', () => {
+      sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
+      sortToggle.textContent = sortDirection === 'asc' ? 'Ordem ↑' : 'Ordem ↓';
+      renderTable();
+    });
+
+    const preparePrintTables = () => {
+      const sorted = [...dataEntries].sort((a, b) => a.code.localeCompare(b.code, 'pt-BR', {
+        numeric: true,
+        sensitivity: 'base'
+      }));
+      const midpoint = Math.ceil(sorted.length / 2);
+      const left = sorted.slice(0, midpoint);
+      const right = sorted.slice(midpoint);
+      const fillTable = (tbody, items) => {
+        tbody.innerHTML = '';
+        items.forEach((entry) => {
+          const row = document.createElement('tr');
+          const codeCell = document.createElement('td');
+          const qtyCell = document.createElement('td');
+          codeCell.textContent = entry.code;
+          qtyCell.textContent = entry.quantity;
+          row.append(codeCell, qtyCell);
+          tbody.append(row);
+        });
+      };
+      fillTable(printLeftBody, left);
+      fillTable(printRightBody, right);
+      printTitleEl.textContent = getCurrentTitle();
+    };
+
+    printButton.addEventListener('click', () => {
+      if (!dataEntries.length) {
+        alert('Adicione registros antes de imprimir.');
+        return;
+      }
+      preparePrintTables();
+      window.print();
+      focusAutoInput();
+    });
+
+    saveButton.addEventListener('click', () => {
+      syncStorage();
+      alert('Dados salvos com sucesso.');
+      focusAutoInput();
+    });
+
+    resetButton.addEventListener('click', () => {
+      const confirmReset = confirm('Deseja realmente resetar todos os dados?');
+      if (!confirmReset) return;
+      dataEntries = [];
+      renderTable();
+      updateLastCode(null, null, null);
+      localStorage.removeItem(STORAGE_KEY);
+      focusAutoInput();
+    });
+
+    const downloadCSV = () => {
+      if (!dataEntries.length) {
+        alert('Não há dados para baixar.');
+        return;
+      }
+      const sorted = [...dataEntries].sort((a, b) => a.code.localeCompare(b.code, 'pt-BR', {
+        numeric: true,
+        sensitivity: 'base'
+      }));
+      const lines = [];
+      const title = getCurrentTitle();
+      lines.push(`"${title}"`);
+      lines.push('Codigo,Quantidade');
+      sorted.forEach((entry) => {
+        lines.push(`${entry.code},${entry.quantity}`);
+      });
+      const blob = new Blob([lines.join('\n')], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = `${title}.csv`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      focusAutoInput();
+    };
+
+    downloadButton.addEventListener('click', downloadCSV);
+
+    document.addEventListener('keydown', (event) => {
+      if ((event.ctrlKey || event.metaKey) && ['w', 'W', 'r', 'R'].includes(event.key)) {
+        event.preventDefault();
+      }
+      if (event.key === 'F5' || (event.altKey && event.key === 'F4')) {
+        event.preventDefault();
+      }
+    });
+
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible') {
+        focusAutoInput();
+      }
+    });
+
+    window.addEventListener('load', () => {
+      loadStorage();
+      focusAutoInput();
+    });
+
+    window.addEventListener('beforeunload', (event) => {
+      if (dataEntries.length) {
+        event.preventDefault();
+        event.returnValue = '';
+      }
+    });
+  </script>
+</body>
+</html>

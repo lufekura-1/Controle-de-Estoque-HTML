@@ -128,6 +128,13 @@
       gap: 12px;
     }
 
+    .manual-actions {
+      display: flex;
+      align-items: flex-end;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
     .stats-grid {
       display: grid;
       gap: 12px;
@@ -184,6 +191,29 @@
 
     tbody tr:nth-child(even) {
       background: rgba(63, 81, 181, 0.08);
+    }
+
+    .table-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .table-action {
+      background: rgba(63, 81, 181, 0.12);
+      border: none;
+      border-radius: 10px;
+      padding: 6px 10px;
+      font-size: 0.85rem;
+      color: var(--accent);
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s ease, transform 0.15s ease;
+    }
+
+    .table-action:hover {
+      background: rgba(63, 81, 181, 0.22);
+      transform: translateY(-1px);
     }
 
     .sort-button {
@@ -262,6 +292,65 @@
     #print-area {
       display: none;
     }
+
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.4);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      z-index: 1000;
+    }
+
+    .modal-overlay.active {
+      display: flex;
+    }
+
+    .modal {
+      background: var(--chip-bg);
+      border-radius: 18px;
+      box-shadow: var(--shadow);
+      width: 100%;
+      max-width: 420px;
+      padding: 24px;
+      display: none;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .modal.active {
+      display: flex;
+    }
+
+    .modal h2 {
+      margin: 0;
+      font-size: 1.2rem;
+      color: var(--accent);
+    }
+
+    .modal-code {
+      font-size: 0.95rem;
+      color: var(--muted);
+    }
+
+    .modal-message {
+      min-height: 24px;
+      font-size: 0.95rem;
+      color: var(--muted);
+    }
+
+    .modal-buttons {
+      display: flex;
+      gap: 12px;
+      justify-content: flex-end;
+      flex-wrap: wrap;
+    }
+
+    .hidden {
+      display: none !important;
+    }
   </style>
 </head>
 <body>
@@ -285,8 +374,9 @@
           Quantidade
           <input id="manual-qty" type="number" min="1" value="1" />
         </label>
-        <div style="display:flex; align-items:flex-end;">
+        <div class="manual-actions">
           <button class="button" id="manual-add">Adicionar</button>
+          <button class="button secondary" id="manual-check">Conferir</button>
         </div>
       </div>
       <div class="inputs-row double">
@@ -360,6 +450,7 @@
               <button class="sort-button" id="sort-toggle">Ordem ↑</button>
             </th>
             <th>Quantidade</th>
+            <th>Ações</th>
           </tr>
         </thead>
         <tbody id="table-body"></tbody>
@@ -389,11 +480,44 @@
     </div>
   </div>
 
+  <div id="modal-overlay" class="modal-overlay">
+    <div class="modal" id="verify-modal">
+      <h2>Conferir Produto</h2>
+      <label for="verify-code">
+        Código
+        <input id="verify-code" type="text" autocomplete="off" spellcheck="false" placeholder="Informe o código" />
+      </label>
+      <div class="modal-message" id="verify-message"></div>
+      <div class="modal-buttons">
+        <button class="button secondary" id="verify-close">Fechar</button>
+        <button class="button" id="verify-submit">Verificar</button>
+      </div>
+      <div class="modal-buttons hidden" id="verify-prompt">
+        <button class="button secondary" id="verify-no-edit">Não</button>
+        <button class="button" id="verify-yes-edit">Sim</button>
+      </div>
+    </div>
+
+    <div class="modal" id="edit-modal">
+      <h2>Editar Item</h2>
+      <div class="modal-code">Código: <strong id="edit-code-display"></strong></div>
+      <label for="edit-qty">
+        Quantidade
+        <input id="edit-qty" type="number" min="1" />
+      </label>
+      <div class="modal-buttons">
+        <button class="button secondary" id="edit-cancel">Cancelar</button>
+        <button class="button" id="edit-save">Salvar</button>
+      </div>
+    </div>
+  </div>
+
   <script>
     const autoInput = document.getElementById('auto-code');
     const manualCodeInput = document.getElementById('manual-code');
     const manualQtyInput = document.getElementById('manual-qty');
     const manualAddButton = document.getElementById('manual-add');
+    const manualCheckButton = document.getElementById('manual-check');
     const storeSelect = document.getElementById('store-select');
     const productSelect = document.getElementById('product-select');
     const totalQuantityEl = document.getElementById('total-quantity');
@@ -409,6 +533,20 @@
     const printTitleEl = document.getElementById('print-title');
     const printLeftBody = document.getElementById('print-table-left');
     const printRightBody = document.getElementById('print-table-right');
+    const modalOverlay = document.getElementById('modal-overlay');
+    const verifyModal = document.getElementById('verify-modal');
+    const editModal = document.getElementById('edit-modal');
+    const verifyCodeInput = document.getElementById('verify-code');
+    const verifyMessage = document.getElementById('verify-message');
+    const verifySubmit = document.getElementById('verify-submit');
+    const verifyClose = document.getElementById('verify-close');
+    const verifyPrompt = document.getElementById('verify-prompt');
+    const verifyYesEdit = document.getElementById('verify-yes-edit');
+    const verifyNoEdit = document.getElementById('verify-no-edit');
+    const editCodeDisplay = document.getElementById('edit-code-display');
+    const editQtyInput = document.getElementById('edit-qty');
+    const editCancel = document.getElementById('edit-cancel');
+    const editSave = document.getElementById('edit-save');
 
     let dataEntries = [];
     let sortDirection = 'asc';
@@ -463,9 +601,20 @@
         const row = document.createElement('tr');
         const codeCell = document.createElement('td');
         const qtyCell = document.createElement('td');
+        const actionsCell = document.createElement('td');
         codeCell.textContent = entry.code;
         qtyCell.textContent = entry.quantity;
-        row.append(codeCell, qtyCell);
+        actionsCell.className = 'table-actions';
+        const editButton = document.createElement('button');
+        editButton.className = 'table-action edit-action';
+        editButton.textContent = 'Editar';
+        editButton.dataset.code = entry.code;
+        const deleteButton = document.createElement('button');
+        deleteButton.className = 'table-action delete-action';
+        deleteButton.textContent = 'Excluir';
+        deleteButton.dataset.code = entry.code;
+        actionsCell.append(editButton, deleteButton);
+        row.append(codeCell, qtyCell, actionsCell);
         tableBody.append(row);
       });
       updateSummary();
@@ -588,6 +737,10 @@
       focusAutoInput();
     });
 
+    manualCheckButton.addEventListener('click', () => {
+      openVerifyModal();
+    });
+
     manualCodeInput.addEventListener('keydown', (event) => {
       if (event.key === 'Enter') {
         event.preventDefault();
@@ -616,6 +769,152 @@
       sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
       sortToggle.textContent = sortDirection === 'asc' ? 'Ordem ↑' : 'Ordem ↓';
       renderTable();
+    });
+
+    let pendingVerifyCode = null;
+    let currentEditingCode = null;
+
+    const closeModal = () => {
+      modalOverlay.classList.remove('active');
+      verifyModal.classList.remove('active');
+      editModal.classList.remove('active');
+      resetVerifyModal();
+      currentEditingCode = null;
+      focusAutoInput();
+    };
+
+    const showModal = (modalElement) => {
+      modalOverlay.classList.add('active');
+      verifyModal.classList.remove('active');
+      editModal.classList.remove('active');
+      modalElement.classList.add('active');
+    };
+
+    const resetVerifyModal = () => {
+      pendingVerifyCode = null;
+      verifyMessage.textContent = '';
+      verifyCodeInput.value = '';
+      verifyPrompt.classList.add('hidden');
+    };
+
+    const openVerifyModal = () => {
+      resetVerifyModal();
+      showModal(verifyModal);
+      setTimeout(() => verifyCodeInput.focus({ preventScroll: true }), 50);
+    };
+
+    const openEditModal = (code) => {
+      const entry = dataEntries.find((item) => item.code === code);
+      if (!entry) {
+        alert('Item não encontrado.');
+        return;
+      }
+      currentEditingCode = entry.code;
+      editCodeDisplay.textContent = entry.code;
+      editQtyInput.value = entry.quantity;
+      showModal(editModal);
+      setTimeout(() => editQtyInput.focus({ preventScroll: true }), 50);
+    };
+
+    verifySubmit.addEventListener('click', () => {
+      const code = sanitizeCode(verifyCodeInput.value);
+      if (!code) {
+        verifyMessage.textContent = 'Informe um código válido.';
+        verifyPrompt.classList.add('hidden');
+        return;
+      }
+      const entry = dataEntries.find((item) => item.code === code);
+      if (entry) {
+        pendingVerifyCode = entry.code;
+        verifyMessage.textContent = 'Produto já cadastrado. Gostaria de editá-lo?';
+        verifyPrompt.classList.remove('hidden');
+      } else {
+        verifyMessage.textContent = 'Produto não cadastrado.';
+        verifyPrompt.classList.add('hidden');
+      }
+    });
+
+    verifyCodeInput.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter') {
+        event.preventDefault();
+        verifySubmit.click();
+      }
+    });
+
+    verifyCodeInput.addEventListener('input', () => {
+      const sanitized = sanitizeCode(verifyCodeInput.value);
+      if (sanitized !== verifyCodeInput.value) {
+        verifyCodeInput.value = sanitized;
+      }
+    });
+
+    verifyClose.addEventListener('click', () => {
+      closeModal();
+    });
+
+    verifyNoEdit.addEventListener('click', () => {
+      closeModal();
+    });
+
+    verifyYesEdit.addEventListener('click', () => {
+      if (pendingVerifyCode) {
+        openEditModal(pendingVerifyCode);
+      }
+    });
+
+    editCancel.addEventListener('click', () => {
+      closeModal();
+    });
+
+    editSave.addEventListener('click', () => {
+      const quantity = Number(editQtyInput.value) || 0;
+      if (quantity <= 0) {
+        alert('Informe uma quantidade válida.');
+        return;
+      }
+      const entry = dataEntries.find((item) => item.code === currentEditingCode);
+      if (!entry) {
+        alert('Item não encontrado.');
+        closeModal();
+        return;
+      }
+      entry.quantity = quantity;
+      renderTable();
+      updateLastCode(entry.code, null, 'manual');
+      syncStorage();
+      closeModal();
+    });
+
+    modalOverlay.addEventListener('click', (event) => {
+      if (event.target === modalOverlay) {
+        closeModal();
+      }
+    });
+
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape') {
+        closeModal();
+      }
+    });
+
+    tableBody.addEventListener('click', (event) => {
+      const target = event.target;
+      if (target instanceof HTMLElement) {
+        if (target.classList.contains('edit-action')) {
+          openEditModal(target.dataset.code);
+        }
+        if (target.classList.contains('delete-action')) {
+          const code = target.dataset.code;
+          const confirmDelete = confirm(`Deseja excluir o item "${code}"?`);
+          if (!confirmDelete) return;
+          dataEntries = dataEntries.filter((item) => item.code !== code);
+          renderTable();
+          if (!dataEntries.length) {
+            updateLastCode(null, null, null);
+          }
+          syncStorage();
+        }
+      }
     });
 
     const preparePrintTables = () => {

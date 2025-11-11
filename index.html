@@ -260,6 +260,7 @@
       width: 100%;
       border-collapse: collapse;
       min-width: 320px;
+      font-size: 0.95rem;
     }
 
     thead {
@@ -269,7 +270,7 @@
 
     th,
     td {
-      padding: 14px 18px;
+      padding: 10px 12px;
       text-align: left;
     }
 
@@ -334,19 +335,20 @@
 
     #inventory-report-area {
       background: white;
-      padding: 24px;
+      padding: 20px;
+      font-size: 0.9rem;
     }
 
     #inventory-report-area table {
       width: 100%;
       border-collapse: collapse;
-      margin-bottom: 24px;
+      margin-bottom: 18px;
     }
 
     #inventory-report-area th,
     #inventory-report-area td {
       border: 1px solid rgba(31, 41, 51, 0.15);
-      padding: 8px 10px;
+      padding: 6px 8px;
       text-align: left;
     }
 
@@ -1144,7 +1146,17 @@
     };
 
     const buildInventoryReport = () => {
-      if (!inventoryReportArea) return;
+      if (
+        !inventoryReportArea ||
+        !inventoryReportTitle ||
+        !inventoryReportOverview ||
+        !inventoryReportIncorrect ||
+        !inventoryReportNonRegistered ||
+        !inventoryReportMissing ||
+        !inventoryReportNegative
+      ) {
+        return false;
+      }
       const metrics = computeInventoryMetrics();
       const { totals, counters, breakdown } = metrics;
       const today = new Date().toLocaleDateString('pt-BR');
@@ -1218,6 +1230,8 @@
         (item) => [item.code, displayNumber(item.saldoContabil)],
         2
       );
+
+      return true;
     };
 
     const buildHeaderMap = (rows) => {
@@ -1392,9 +1406,13 @@
           alert('Importe dados de estoque ou cadastre códigos para gerar o relatório.');
           return;
         }
-        buildInventoryReport();
+        const ready = buildInventoryReport();
+        if (!ready) {
+          alert('Não foi possível preparar o relatório para impressão.');
+          return;
+        }
         setPrintSurface(inventoryReportArea);
-        window.print();
+        setTimeout(() => window.print(), 50);
       });
     }
 

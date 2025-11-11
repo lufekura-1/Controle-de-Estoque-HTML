@@ -45,107 +45,74 @@
       background: var(--chip-bg);
       border-radius: var(--border-radius);
       box-shadow: var(--shadow);
-      padding: 16px 12px;
-      width: 260px;
-      min-width: 260px;
+      padding: 24px 12px;
+      width: 88px;
+      min-width: 88px;
       display: flex;
       flex-direction: column;
       gap: 16px;
+      align-items: center;
       transition: width 0.25s ease, min-width 0.25s ease, padding 0.25s ease;
+      overflow: hidden;
     }
 
-    .sidebar.collapsed {
-      width: 84px;
-      min-width: 84px;
-      padding-inline: 10px;
-    }
-
-    .sidebar-toggle {
-      align-self: flex-end;
-      border: none;
-      background: rgba(63, 81, 181, 0.12);
-      color: var(--accent);
-      border-radius: 12px;
-      width: 44px;
-      height: 44px;
-      display: grid;
-      place-items: center;
-      font-size: 1.1rem;
-      cursor: pointer;
-      transition: background 0.2s ease, transform 0.2s ease;
-    }
-
-    .sidebar-toggle:hover {
-      background: rgba(63, 81, 181, 0.22);
-      transform: translateY(-1px);
-    }
-
-    .sidebar-section {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-
-    .sidebar-section + .sidebar-section {
-      border-top: 1px solid #e5e7eb;
-      padding-top: 12px;
-    }
-
-    .sidebar-title {
-      font-size: 0.8rem;
-      font-weight: 700;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: var(--accent);
-      transition: opacity 0.2s ease;
+    .sidebar:hover {
+      width: 220px;
+      min-width: 220px;
+      align-items: flex-start;
+      padding-inline: 18px;
     }
 
     .nav-button {
       border: none;
       background: transparent;
-      padding: 10px 12px;
-      border-radius: 12px;
+      padding: 12px;
+      border-radius: 16px;
       font-size: 0.95rem;
       font-weight: 600;
       color: var(--muted);
-      text-align: left;
       cursor: pointer;
       transition: background 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
       display: flex;
+      flex-direction: column;
       align-items: center;
+      gap: 6px;
+      width: 100%;
+    }
+
+    .sidebar:hover .nav-button {
+      flex-direction: row;
+      justify-content: flex-start;
       gap: 12px;
     }
 
     .nav-button-icon {
-      width: 36px;
-      height: 36px;
-      border-radius: 12px;
+      width: 42px;
+      height: 42px;
+      border-radius: 14px;
       background: rgba(63, 81, 181, 0.12);
       color: var(--accent);
       display: grid;
       place-items: center;
-      font-size: 0.85rem;
+      font-size: 1.1rem;
       font-weight: 700;
       flex-shrink: 0;
       transition: background 0.2s ease, color 0.2s ease;
     }
 
-    .sidebar.collapsed .sidebar-title {
+    .nav-button-text {
       opacity: 0;
-      pointer-events: none;
+      transform: translateX(-8px);
+      max-width: 0;
+      white-space: nowrap;
+      transition: opacity 0.2s ease, transform 0.2s ease, max-width 0.2s ease;
     }
 
-    .sidebar.collapsed .nav-button {
-      justify-content: center;
-      padding-inline: 8px;
-    }
-
-    .sidebar.collapsed .nav-button-text {
-      display: none;
-    }
-
-    .sidebar.collapsed .nav-button-icon {
-      margin: 0;
+    .sidebar:hover .nav-button-text,
+    .nav-button:focus-visible .nav-button-text {
+      opacity: 1;
+      transform: translateX(0);
+      max-width: 200px;
     }
 
     .nav-button:hover {
@@ -153,7 +120,8 @@
       color: var(--accent);
     }
 
-    .nav-button:hover .nav-button-icon {
+    .nav-button:hover .nav-button-icon,
+    .nav-button:focus-visible .nav-button-icon {
       background: rgba(63, 81, 181, 0.18);
     }
 
@@ -165,10 +133,6 @@
 
     .nav-button.active .nav-button-icon {
       background: rgba(63, 81, 181, 0.2);
-    }
-
-    .section-nav-button {
-      font-weight: 500;
     }
 
     .page-container {
@@ -514,47 +478,33 @@
         width: 100%;
         min-width: 0;
         flex-direction: row;
-        align-items: stretch;
+        align-items: center;
+        justify-content: center;
         gap: 12px;
         overflow-x: auto;
         padding: 12px;
       }
 
-      .sidebar.collapsed {
+      .sidebar:hover {
         width: 100%;
         min-width: 0;
-        padding: 12px;
-      }
-
-      .sidebar-toggle {
-        display: none;
-      }
-
-      .sidebar-section {
-        flex-direction: row;
         align-items: center;
-        gap: 12px;
-        border-top: none;
-        padding-top: 0;
-      }
-
-      .sidebar-title {
-        opacity: 1;
-        display: block;
       }
 
       .nav-button {
         flex: 1 0 auto;
+        flex-direction: column;
         justify-content: center;
-        text-align: center;
       }
 
-      .nav-button-icon {
-        display: none;
+      .sidebar:hover .nav-button {
+        flex-direction: column;
       }
 
-      .sidebar.collapsed .nav-button-text {
-        display: inline;
+      .nav-button-text {
+        opacity: 1;
+        transform: translateX(0);
+        max-width: none;
       }
     }
 
@@ -605,7 +555,6 @@
       }
 
       .sidebar,
-      .sidebar-toggle,
       .layout-grid,
       .table-section,
       .report-breakdown,
@@ -715,52 +664,234 @@
 </head>
 <body>
   <div class="app-shell">
-    <aside class="sidebar collapsed" id="sidebar">
-      <button class="sidebar-toggle" id="sidebar-toggle" aria-label="Expandir menu" aria-expanded="false">☰</button>
-      <div class="sidebar-section">
-        <div class="sidebar-title">Páginas</div>
-        <button class="nav-button page-nav-button active" data-target="manual-page" title="Contagem Manual">
-          <span class="nav-button-icon">CM</span>
-          <span class="nav-button-text">Contagem Manual</span>
-        </button>
-        <button class="nav-button page-nav-button" data-target="conferencia-page" title="Conferência de Estoque">
-          <span class="nav-button-icon">CE</span>
-          <span class="nav-button-text">Conferência de Estoque</span>
-        </button>
-      </div>
-      <div class="sidebar-section" data-owner="manual-page">
-        <div class="sidebar-title">Contagem Manual</div>
-        <button class="nav-button section-nav-button" data-owner="manual-page" data-section-target="manual-data-entry" title="Inserção de Dados">
-          <span class="nav-button-icon">ID</span>
-          <span class="nav-button-text">Inserção de Dados</span>
-        </button>
-        <button class="nav-button section-nav-button" data-owner="manual-page" data-section-target="manual-summary" title="Resumo Atual">
-          <span class="nav-button-icon">RA</span>
-          <span class="nav-button-text">Resumo Atual</span>
-        </button>
-        <button class="nav-button section-nav-button" data-owner="manual-page" data-section-target="manual-export" title="Salvar e Exportar">
-          <span class="nav-button-icon">SE</span>
-          <span class="nav-button-text">Salvar e Exportar</span>
-        </button>
-      </div>
-      <div class="sidebar-section" data-owner="conferencia-page">
-        <div class="sidebar-title">Conferência</div>
-        <button class="nav-button section-nav-button" data-owner="conferencia-page" data-section-target="inventory-data-entry" title="Inserção de Dados">
-          <span class="nav-button-icon">ID</span>
-          <span class="nav-button-text">Inserção de Dados</span>
-        </button>
-        <button class="nav-button section-nav-button" data-owner="conferencia-page" data-section-target="inventory-summary" title="Resumo Atual">
-          <span class="nav-button-icon">RA</span>
-          <span class="nav-button-text">Resumo Atual</span>
-        </button>
-        <button class="nav-button section-nav-button" data-owner="conferencia-page" data-section-target="inventory-export" title="Salvar e Exportar">
-          <span class="nav-button-icon">SE</span>
-          <span class="nav-button-text">Salvar e Exportar</span>
-        </button>
-      </div>
+    <aside class="sidebar" id="sidebar">
+      <button class="nav-button page-nav-button active" data-target="conferencia-page" title="Conferência de Estoque">
+        <span class="nav-button-icon">★</span>
+        <span class="nav-button-text">Conferência de Estoque</span>
+      </button>
+      <button class="nav-button page-nav-button" data-target="manual-page" title="Contagem Manual">
+        <span class="nav-button-icon">📋</span>
+        <span class="nav-button-text">Contagem Manual</span>
+      </button>
     </aside>
     <main class="page-container">
-      <section class="page active" id="manual-page">
+      <section class="page active" id="conferencia-page">
+        <h1>Conferência de Estoque</h1>
+
+        <div class="layout-grid">
+          <div class="chip" id="inventory-data-entry">
+            <div class="chip-section-title">Inserção de Dados</div>
+            <div class="inputs-row">
+              <label for="inventory-auto-code">
+                Campo Automático (Leitor)
+                <input id="inventory-auto-code" data-role="auto-input" type="text" autocomplete="off" spellcheck="false" placeholder="Aproxime o leitor aqui" />
+              </label>
+            </div>
+            <div class="inputs-row double">
+              <label for="inventory-manual-code">
+                Código Manual
+                <input id="inventory-manual-code" type="text" placeholder="Informe o código" />
+              </label>
+              <label for="inventory-manual-qty">
+                Quantidade
+                <input id="inventory-manual-qty" type="number" min="1" value="1" />
+              </label>
+              <div class="manual-actions">
+                <button class="button" id="inventory-manual-add">Adicionar</button>
+                <button class="button secondary" id="inventory-manual-check">Conferir</button>
+              </div>
+            </div>
+            <div class="inputs-row double">
+              <label for="inventory-store-select">
+                Loja
+                <select id="inventory-store-select">
+                  <option value="Jorel Chicuta">Jorel Chicuta</option>
+                  <option value="Jorel Avenida">Jorel Avenida</option>
+                  <option value="Exótica">Exótica</option>
+                </select>
+              </label>
+              <label for="inventory-product-select">
+                Produto
+                <select id="inventory-product-select">
+                  <option value="Anel">Anel</option>
+                  <option value="Brinco">Brinco</option>
+                  <option value="Pingente">Pingente</option>
+                  <option value="Corrente">Corrente</option>
+                  <option value="Pulseira">Pulseira</option>
+                  <option value="Aliança">Aliança</option>
+                  <option value="Relógio">Relógio</option>
+                  <option value="Armação">Armação</option>
+                  <option value="Solar">Solar</option>
+                  <option value="Outro">Outro</option>
+                </select>
+              </label>
+            </div>
+            <div class="inventory-header">
+              <div class="button-group">
+                <button class="button" id="import-xls">Importar XLS</button>
+              </div>
+              <input type="file" id="xls-input" accept=".xls,.xlsx" class="hidden-file-input" />
+              <p class="inventory-instructions">Importe um arquivo contendo as colunas Código, Produto e Saldo Contábil e informe abaixo o contexto do relatório.</p>
+            </div>
+          </div>
+
+          <div class="chip" id="inventory-summary">
+            <div class="chip-section-title">Resumo Atual</div>
+            <div class="stats-grid">
+              <div class="stat-card">
+                <span class="stat-label">Quantidade Importada</span>
+                <span class="stat-value" id="inventory-total-imported">0</span>
+              </div>
+              <div class="stat-card">
+                <span class="stat-label">Quantidade Cadastrada</span>
+                <span class="stat-value" id="inventory-total-registered">0</span>
+              </div>
+              <div class="stat-card">
+                <span class="stat-label">Quantidade Negativa</span>
+                <span class="stat-value" id="inventory-total-negatives">0</span>
+              </div>
+              <div class="stat-card">
+                <span class="stat-label">Códigos Corretos</span>
+                <span class="stat-value" id="inventory-ok-total">0</span>
+              </div>
+              <div class="stat-card">
+                <span class="stat-label">Códigos Incorretos</span>
+                <span class="stat-value" id="inventory-incorrect-total">0</span>
+              </div>
+              <div class="stat-card">
+                <span class="stat-label">Valor de Correspondência</span>
+                <span class="stat-value" id="inventory-match-percentage">0%</span>
+              </div>
+              <div class="stat-card">
+                <span class="stat-label">Último Código</span>
+                <span class="stat-value" id="inventory-last-code">---</span>
+              </div>
+            </div>
+            <div class="report-breakdown">
+              <div class="report-card">
+                <h3>Códigos Corretos</h3>
+                <span class="report-count" id="inventory-correct-count">0</span>
+                <ul class="code-list" id="inventory-correct-list"></ul>
+              </div>
+              <div class="report-card">
+                <h3>Códigos Incorretos</h3>
+                <span class="report-count" id="inventory-incorrect-count">0</span>
+                <ul class="code-list" id="inventory-incorrect-list"></ul>
+              </div>
+              <div class="report-card">
+                <h3>Códigos não cadastrados</h3>
+                <span class="report-count" id="inventory-non-registered-count">0</span>
+                <ul class="code-list" id="inventory-non-registered-list"></ul>
+              </div>
+              <div class="report-card">
+                <h3>Códigos Faltando</h3>
+                <span class="report-count" id="inventory-missing-count">0</span>
+                <ul class="code-list" id="inventory-missing-list"></ul>
+              </div>
+              <div class="report-card">
+                <h3>Códigos Negativos</h3>
+                <span class="report-count" id="inventory-negative-count">0</span>
+                <ul class="code-list" id="inventory-negative-list"></ul>
+              </div>
+            </div>
+          </div>
+
+          <div class="chip" id="inventory-export">
+            <div class="chip-section-title">Salvar e Exportar</div>
+            <div class="button-group">
+              <button class="button" id="inventory-print-report">Imprimir Relatório</button>
+              <button class="button" id="inventory-save">Salvar Conferência</button>
+              <button class="button secondary" id="inventory-export-data">Exportar CSV</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="table-section">
+          <div class="table-title">Saldos Conferidos</div>
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>Código</th>
+                  <th>Produto</th>
+                  <th>Saldo Contábil</th>
+                  <th>Saldo em Loja</th>
+                  <th>OK</th>
+                </tr>
+              </thead>
+              <tbody id="inventory-table-body"></tbody>
+            </table>
+          </div>
+          <div class="empty-state" id="inventory-empty">Importe um arquivo XLS para visualizar os saldos.</div>
+        </div>
+        <div id="inventory-report-area" class="print-surface">
+          <h2 id="inventory-report-title"></h2>
+          <table>
+            <thead>
+              <tr>
+                <th>Resumo</th>
+                <th>Valor</th>
+              </tr>
+            </thead>
+            <tbody id="inventory-report-overview"></tbody>
+          </table>
+
+          <div class="report-section">
+            <h3>Códigos Incorretos</h3>
+            <table>
+              <thead>
+                <tr>
+                  <th>Código</th>
+                  <th>Saldo Contábil</th>
+                  <th>Saldo em Loja</th>
+                </tr>
+              </thead>
+              <tbody id="inventory-report-incorrect"></tbody>
+            </table>
+          </div>
+
+          <div class="report-section">
+            <h3>Não Cadastrados</h3>
+            <table>
+              <thead>
+                <tr>
+                  <th>Código</th>
+                  <th>Quantidade</th>
+                </tr>
+              </thead>
+              <tbody id="inventory-report-non-registered"></tbody>
+            </table>
+          </div>
+
+          <div class="report-section">
+            <h3>Códigos Faltando</h3>
+            <table>
+              <thead>
+                <tr>
+                  <th>Código</th>
+                  <th>Esperado</th>
+                  <th>Encontrado</th>
+                </tr>
+              </thead>
+              <tbody id="inventory-report-missing"></tbody>
+            </table>
+          </div>
+
+          <div class="report-section">
+            <h3>Códigos Negativos</h3>
+            <table>
+              <thead>
+                <tr>
+                  <th>Código</th>
+                  <th>Saldo Contábil</th>
+                </tr>
+              </thead>
+              <tbody id="inventory-report-negative"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+      <section class="page" id="manual-page">
         <h1>Controle de Estoque</h1>
 
         <div class="layout-grid">
@@ -769,7 +900,7 @@
             <div class="inputs-row">
               <label for="auto-code">
                 Campo Automático (Leitor)
-                <input id="auto-code" type="text" autocomplete="off" spellcheck="false" placeholder="Aproxime o leitor aqui" />
+                <input id="auto-code" data-role="auto-input" type="text" autocomplete="off" spellcheck="false" placeholder="Aproxime o leitor aqui" />
               </label>
             </div>
             <div class="inputs-row double">
@@ -888,211 +1019,7 @@
         </div>
       </section>
 
-      <section class="page" id="conferencia-page">
-        <h1>Conferência de Estoque</h1>
-
-        <div class="layout-grid">
-          <div class="chip" id="inventory-data-entry">
-            <div class="chip-section-title">Inserção de Dados</div>
-            <div class="inventory-header">
-              <div class="button-group">
-                <button class="button" id="import-xls">Importar XLS</button>
-              </div>
-              <input type="file" id="xls-input" accept=".xls,.xlsx" class="hidden-file-input" />
-              <p class="inventory-instructions">Importe um arquivo contendo as colunas Código, Produto e Saldo Contábil e informe abaixo o contexto do relatório.</p>
-            </div>
-            <div class="inputs-row double">
-              <label for="inventory-store-select">
-                Loja
-                <select id="inventory-store-select">
-                  <option value="Jorel Chicuta">Jorel Chicuta</option>
-                  <option value="Jorel Avenida">Jorel Avenida</option>
-                  <option value="Exótica">Exótica</option>
-                </select>
-              </label>
-              <label for="inventory-product-select">
-                Produto
-                <select id="inventory-product-select">
-                  <option value="Anel">Anel</option>
-                  <option value="Brinco">Brinco</option>
-                  <option value="Pingente">Pingente</option>
-                  <option value="Corrente">Corrente</option>
-                  <option value="Pulseira">Pulseira</option>
-                  <option value="Aliança">Aliança</option>
-                  <option value="Relógio">Relógio</option>
-                  <option value="Armação">Armação</option>
-                  <option value="Solar">Solar</option>
-                  <option value="Outro">Outro</option>
-                </select>
-              </label>
-            </div>
-          </div>
-
-          <div class="chip" id="inventory-summary">
-            <div class="chip-section-title">Resumo Atual</div>
-            <div class="stats-grid">
-              <div class="stat-card">
-                <span class="stat-label">Quantidade Importada</span>
-                <span class="stat-value" id="inventory-total-imported">0</span>
-              </div>
-              <div class="stat-card">
-                <span class="stat-label">Quantidade Cadastrada</span>
-                <span class="stat-value" id="inventory-total-registered">0</span>
-              </div>
-              <div class="stat-card">
-                <span class="stat-label">Quantidade Negativa</span>
-                <span class="stat-value" id="inventory-total-negatives">0</span>
-              </div>
-              <div class="stat-card">
-                <span class="stat-label">Códigos Corretos</span>
-                <span class="stat-value" id="inventory-ok-total">0</span>
-              </div>
-              <div class="stat-card">
-                <span class="stat-label">Códigos Incorretos</span>
-                <span class="stat-value" id="inventory-incorrect-total">0</span>
-              </div>
-              <div class="stat-card">
-                <span class="stat-label">Valor de Correspondência</span>
-                <span class="stat-value" id="inventory-match-percentage">0%</span>
-              </div>
-            </div>
-            <div class="report-breakdown">
-              <div class="report-card">
-                <h3>Códigos Corretos</h3>
-                <span class="report-count" id="inventory-correct-count">0</span>
-                <ul class="code-list" id="inventory-correct-list"></ul>
-              </div>
-              <div class="report-card">
-                <h3>Códigos Incorretos</h3>
-                <span class="report-count" id="inventory-incorrect-count">0</span>
-                <ul class="code-list" id="inventory-incorrect-list"></ul>
-              </div>
-              <div class="report-card">
-                <h3>Códigos não cadastrados</h3>
-                <span class="report-count" id="inventory-non-registered-count">0</span>
-                <ul class="code-list" id="inventory-non-registered-list"></ul>
-              </div>
-              <div class="report-card">
-                <h3>Códigos Faltando</h3>
-                <span class="report-count" id="inventory-missing-count">0</span>
-                <ul class="code-list" id="inventory-missing-list"></ul>
-              </div>
-              <div class="report-card">
-                <h3>Códigos Negativos</h3>
-                <span class="report-count" id="inventory-negative-count">0</span>
-                <ul class="code-list" id="inventory-negative-list"></ul>
-              </div>
-            </div>
-          </div>
-
-          <div class="chip" id="inventory-export">
-            <div class="chip-section-title">Salvar e Exportar</div>
-            <div class="button-group">
-              <button class="button" id="inventory-print-report">Imprimir Relatório</button>
-              <button class="button" id="inventory-save">Salvar Conferência</button>
-              <button class="button secondary" id="inventory-export-data">Exportar CSV</button>
-            </div>
-          </div>
-        </div>
-
-        <div class="table-section">
-          <div class="table-title">Saldos Conferidos</div>
-          <div class="table-wrapper">
-            <table>
-              <thead>
-                <tr>
-                  <th>Código</th>
-                  <th>Produto</th>
-                  <th>Saldo Contábil</th>
-                  <th>Saldo em Loja</th>
-                  <th>OK</th>
-                </tr>
-              </thead>
-              <tbody id="inventory-table-body"></tbody>
-            </table>
-          </div>
-          <div class="empty-state" id="inventory-empty">Importe um arquivo XLS para visualizar os saldos.</div>
-        </div>
-        <div id="inventory-report-area" class="print-surface">
-          <h2 id="inventory-report-title"></h2>
-          <table>
-            <thead>
-              <tr>
-                <th>Resumo</th>
-                <th>Valor</th>
-              </tr>
-            </thead>
-            <tbody id="inventory-report-overview"></tbody>
-          </table>
-
-          <div class="report-section">
-            <h3>Códigos Corretos</h3>
-            <table>
-              <thead>
-                <tr>
-                  <th>Código</th>
-                  <th>Saldo Contábil</th>
-                </tr>
-              </thead>
-              <tbody id="inventory-report-correct"></tbody>
-            </table>
-          </div>
-
-          <div class="report-section">
-            <h3>Códigos Incorretos</h3>
-            <table>
-              <thead>
-                <tr>
-                  <th>Código</th>
-                  <th>Saldo Contábil</th>
-                  <th>Saldo em Loja</th>
-                </tr>
-              </thead>
-              <tbody id="inventory-report-incorrect"></tbody>
-            </table>
-          </div>
-
-          <div class="report-section">
-            <h3>Códigos não cadastrados</h3>
-            <table>
-              <thead>
-                <tr>
-                  <th>Código</th>
-                  <th>Quantidade</th>
-                </tr>
-              </thead>
-              <tbody id="inventory-report-non-registered"></tbody>
-            </table>
-          </div>
-
-          <div class="report-section">
-            <h3>Códigos Faltando</h3>
-            <table>
-              <thead>
-                <tr>
-                  <th>Código</th>
-                  <th>Esperado</th>
-                  <th>Encontrado</th>
-                </tr>
-              </thead>
-              <tbody id="inventory-report-missing"></tbody>
-            </table>
-          </div>
-
-          <div class="report-section">
-            <h3>Códigos Negativos</h3>
-            <table>
-              <thead>
-                <tr>
-                  <th>Código</th>
-                  <th>Saldo Contábil</th>
-                </tr>
-              </thead>
-              <tbody id="inventory-report-negative"></tbody>
-            </table>
-          </div>
-        </div>
-      </section>
+      
     </main>
   </div>
 
@@ -1130,23 +1057,25 @@
 
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <script>
-    const sidebar = document.getElementById('sidebar');
-    const sidebarToggle = document.getElementById('sidebar-toggle');
     const pageNavButtons = document.querySelectorAll('.page-nav-button');
-    const sectionNavButtons = document.querySelectorAll('.section-nav-button');
     const pages = document.querySelectorAll('.page');
-    const manualPage = document.getElementById('manual-page');
     const autoInput = document.getElementById('auto-code');
     const manualCodeInput = document.getElementById('manual-code');
     const manualQtyInput = document.getElementById('manual-qty');
     const manualAddButton = document.getElementById('manual-add');
     const manualCheckButton = document.getElementById('manual-check');
+    const inventoryAutoInput = document.getElementById('inventory-auto-code');
+    const inventoryManualCodeInput = document.getElementById('inventory-manual-code');
+    const inventoryManualQtyInput = document.getElementById('inventory-manual-qty');
+    const inventoryManualAddButton = document.getElementById('inventory-manual-add');
+    const inventoryManualCheckButton = document.getElementById('inventory-manual-check');
     const storeSelect = document.getElementById('store-select');
     const productSelect = document.getElementById('product-select');
     const inventoryStoreSelect = document.getElementById('inventory-store-select');
     const inventoryProductSelect = document.getElementById('inventory-product-select');
     const totalQuantityEl = document.getElementById('total-quantity');
     const lastCodeEl = document.getElementById('last-code');
+    const inventoryLastCodeEl = document.getElementById('inventory-last-code');
     const summaryStoreEl = document.getElementById('summary-store');
     const summaryProductEl = document.getElementById('summary-product');
     const tableBody = document.getElementById('table-body');
@@ -1204,7 +1133,6 @@
     const inventoryReportArea = document.getElementById('inventory-report-area');
     const inventoryReportTitle = document.getElementById('inventory-report-title');
     const inventoryReportOverview = document.getElementById('inventory-report-overview');
-    const inventoryReportCorrect = document.getElementById('inventory-report-correct');
     const inventoryReportIncorrect = document.getElementById('inventory-report-incorrect');
     const inventoryReportNonRegistered = document.getElementById('inventory-report-non-registered');
     const inventoryReportMissing = document.getElementById('inventory-report-missing');
@@ -1212,7 +1140,6 @@
 
     let dataEntries = [];
     let sortDirection = 'asc';
-    let scanStart = null;
     let inventoryData = [];
     let currentPrintSurface = null;
     let lastEntryDurationMs = null;
@@ -1247,26 +1174,13 @@
     };
 
     const focusAutoInput = () => {
-      if (!manualPage.classList.contains('active')) {
-        return;
+      const activePage = document.querySelector('.page.active');
+      if (!activePage) return;
+      const autoField = activePage.querySelector('[data-role="auto-input"]');
+      if (autoField instanceof HTMLInputElement) {
+        setTimeout(() => autoField.focus({ preventScroll: true }), 50);
       }
-      setTimeout(() => autoInput.focus({ preventScroll: true }), 50);
     };
-
-    const updateSidebarToggle = () => {
-      if (!sidebar || !sidebarToggle) return;
-      const collapsed = sidebar.classList.contains('collapsed');
-      sidebarToggle.textContent = collapsed ? '☰' : '⮜';
-      sidebarToggle.setAttribute('aria-expanded', String(!collapsed));
-    };
-
-    if (sidebar && sidebarToggle) {
-      updateSidebarToggle();
-      sidebarToggle.addEventListener('click', () => {
-        sidebar.classList.toggle('collapsed');
-        updateSidebarToggle();
-      });
-    }
 
     const activatePage = (targetId) => {
       pages.forEach((page) => {
@@ -1275,9 +1189,7 @@
       pageNavButtons.forEach((btn) => {
         btn.classList.toggle('active', btn.dataset.target === targetId);
       });
-      if (targetId === 'manual-page') {
-        focusAutoInput();
-      }
+      focusAutoInput();
     };
 
     pageNavButtons.forEach((button) => {
@@ -1285,22 +1197,6 @@
         const target = button.dataset.target;
         if (!target) return;
         activatePage(target);
-      });
-    });
-
-    sectionNavButtons.forEach((button) => {
-      button.addEventListener('click', () => {
-        const owner = button.dataset.owner;
-        const sectionTarget = button.dataset.sectionTarget;
-        if (owner) {
-          activatePage(owner);
-        }
-        if (sectionTarget) {
-          const section = document.getElementById(sectionTarget);
-          if (section) {
-            section.scrollIntoView({ behavior: 'smooth', block: 'start' });
-          }
-        }
       });
     });
 
@@ -1695,13 +1591,22 @@
     const updateLastCode = (code, durationMs, mode) => {
       if (!code) {
         lastCodeEl.textContent = '---';
+        if (inventoryLastCodeEl) {
+          inventoryLastCodeEl.textContent = '---';
+        }
         return;
       }
       if (mode === 'manual' || durationMs == null) {
         lastCodeEl.textContent = `${code} (Manual)`;
+        if (inventoryLastCodeEl) {
+          inventoryLastCodeEl.textContent = `${code} (Manual)`;
+        }
       } else {
         const seconds = (durationMs / 1000).toFixed(2);
         lastCodeEl.textContent = `${code} (Tempo: ${seconds}s)`;
+        if (inventoryLastCodeEl) {
+          inventoryLastCodeEl.textContent = `${code} (Tempo: ${seconds}s)`;
+        }
       }
     };
 
@@ -1792,6 +1697,9 @@
         }
         if (payload.lastCode) {
           lastCodeEl.textContent = payload.lastCode;
+          if (inventoryLastCodeEl) {
+            inventoryLastCodeEl.textContent = payload.lastCode;
+          }
         }
       } catch (error) {
         console.error('Erro ao carregar dados salvos', error);
@@ -1817,82 +1725,112 @@
       syncStorage();
     };
 
-    autoInput.addEventListener('keydown', (event) => {
-      if (event.key === 'Tab') {
-        event.preventDefault();
+    const setupDataEntryForm = (form) => {
+      const { autoInput: autoField, manualCodeInput: codeField, manualQtyInput: qtyField, addButton, checkButton } = form;
+      if (!autoField || !codeField || !qtyField || !addButton) {
+        return;
       }
-      if ((event.ctrlKey || event.metaKey) && ['w', 'W', 'r', 'R'].includes(event.key)) {
-        event.preventDefault();
-      }
-      if (event.key === 'F5' || event.key === 'F11' || (event.altKey && event.key === 'F4')) {
-        event.preventDefault();
-      }
-      const allowedControlKeys = ['Backspace', 'Enter', 'Delete', 'ArrowLeft', 'ArrowRight'];
-      const isAlphaNumeric = /[\w-]/.test(event.key);
-      if (!isAlphaNumeric && !allowedControlKeys.includes(event.key)) {
-        event.preventDefault();
-      }
-      if (!scanStart && isAlphaNumeric) {
-        scanStart = performance.now();
-      }
-      if (event.key === 'Enter') {
-        event.preventDefault();
-        const sanitized = sanitizeCode(autoInput.value);
-        if (sanitized) {
-          const scanEnd = performance.now();
-          lastEntryDurationMs = scanStart ? scanEnd - scanStart : 0;
-          lastEntryMode = 'auto';
-          upsertEntry(sanitized, 1);
+
+      let scanStartTime = null;
+
+      autoField.addEventListener('keydown', (event) => {
+        if (event.key === 'Tab') {
+          event.preventDefault();
         }
-        autoInput.value = '';
-        scanStart = null;
+        if ((event.ctrlKey || event.metaKey) && ['w', 'W', 'r', 'R'].includes(event.key)) {
+          event.preventDefault();
+        }
+        if (event.key === 'F5' || event.key === 'F11' || (event.altKey && event.key === 'F4')) {
+          event.preventDefault();
+        }
+        const allowedControlKeys = ['Backspace', 'Enter', 'Delete', 'ArrowLeft', 'ArrowRight'];
+        const isAlphaNumeric = /[\w-]/.test(event.key);
+        if (!isAlphaNumeric && !allowedControlKeys.includes(event.key)) {
+          event.preventDefault();
+        }
+        if (scanStartTime == null && isAlphaNumeric) {
+          scanStartTime = performance.now();
+        }
+        if (event.key === 'Enter') {
+          event.preventDefault();
+          const sanitized = sanitizeCode(autoField.value);
+          if (sanitized) {
+            const scanEnd = performance.now();
+            lastEntryDurationMs = scanStartTime ? scanEnd - scanStartTime : 0;
+            lastEntryMode = 'auto';
+            upsertEntry(sanitized, 1);
+          }
+          autoField.value = '';
+          scanStartTime = null;
+          focusAutoInput();
+        }
+      });
+
+      autoField.addEventListener('input', () => {
+        const sanitized = sanitizeCode(autoField.value);
+        if (sanitized !== autoField.value) {
+          autoField.value = sanitized;
+        }
+      });
+
+      addButton.addEventListener('click', () => {
+        const code = sanitizeCode(codeField.value);
+        const quantity = Number(qtyField.value) || 0;
+        if (!code) {
+          alert('Informe um código válido.');
+          return;
+        }
+        if (quantity <= 0) {
+          alert('Informe uma quantidade válida.');
+          return;
+        }
+        lastEntryDurationMs = null;
+        lastEntryMode = 'manual';
+        upsertEntry(code, quantity);
+        codeField.value = '';
+        qtyField.value = '1';
         focusAutoInput();
-      }
-    });
+      });
 
-    autoInput.addEventListener('input', () => {
-      const sanitized = sanitizeCode(autoInput.value);
-      if (sanitized !== autoInput.value) {
-        autoInput.value = sanitized;
+      if (checkButton) {
+        checkButton.addEventListener('click', () => {
+          openVerifyModal();
+        });
       }
-    });
 
-    manualAddButton.addEventListener('click', () => {
-      const code = sanitizeCode(manualCodeInput.value);
-      const quantity = Number(manualQtyInput.value) || 0;
-      if (!code) {
-        alert('Informe um código válido.');
-        return;
-      }
-      if (quantity <= 0) {
-        alert('Informe uma quantidade válida.');
-        return;
-      }
-      lastEntryDurationMs = null;
-      lastEntryMode = 'manual';
-      upsertEntry(code, quantity);
-      manualCodeInput.value = '';
-      manualQtyInput.value = '1';
-      focusAutoInput();
-    });
+      codeField.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter') {
+          event.preventDefault();
+          addButton.click();
+        }
+      });
 
-    manualCheckButton.addEventListener('click', () => {
-      openVerifyModal();
-    });
+      qtyField.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter') {
+          event.preventDefault();
+          addButton.click();
+        }
+      });
+    };
 
-    manualCodeInput.addEventListener('keydown', (event) => {
-      if (event.key === 'Enter') {
-        event.preventDefault();
-        manualAddButton.click();
+    const dataEntryForms = [
+      {
+        autoInput,
+        manualCodeInput,
+        manualQtyInput,
+        addButton: manualAddButton,
+        checkButton: manualCheckButton
+      },
+      {
+        autoInput: inventoryAutoInput,
+        manualCodeInput: inventoryManualCodeInput,
+        manualQtyInput: inventoryManualQtyInput,
+        addButton: inventoryManualAddButton,
+        checkButton: inventoryManualCheckButton
       }
-    });
+    ];
 
-    manualQtyInput.addEventListener('keydown', (event) => {
-      if (event.key === 'Enter') {
-        event.preventDefault();
-        manualAddButton.click();
-      }
-    });
+    dataEntryForms.forEach((form) => setupDataEntryForm(form));
 
     storeSelect.addEventListener('change', () => {
       summaryStoreEl.textContent = storeSelect.value;
@@ -2033,13 +1971,6 @@
           tbody.append(tr);
         });
       };
-
-      fillReportTable(
-        inventoryReportCorrect,
-        breakdown.correct,
-        (item) => [item.code, displayNumber(item.saldoContabil)],
-        2
-      );
 
       fillReportTable(
         inventoryReportIncorrect,
@@ -2352,9 +2283,7 @@
 
     window.addEventListener('afterprint', () => {
       resetPrintSurface();
-      if (manualPage.classList.contains('active')) {
-        focusAutoInput();
-      }
+      focusAutoInput();
     });
 
   </script>

@@ -27,6 +27,75 @@
       background: linear-gradient(135deg, #e3eeff 0%, #f8f9ff 100%);
       color: var(--text);
       min-height: 100vh;
+      display: flex;
+      justify-content: center;
+    }
+
+    .app-shell {
+      display: flex;
+      gap: 24px;
+      width: 100%;
+      max-width: 1400px;
+    }
+
+    .sidebar {
+      background: var(--chip-bg);
+      border-radius: var(--border-radius);
+      box-shadow: var(--shadow);
+      padding: 20px;
+      min-width: 220px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      height: fit-content;
+    }
+
+    .sidebar-title {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .nav-button {
+      border: none;
+      background: transparent;
+      padding: 12px 16px;
+      border-radius: 12px;
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--muted);
+      text-align: left;
+      cursor: pointer;
+      transition: background 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .nav-button:hover {
+      background: rgba(63, 81, 181, 0.08);
+      color: var(--accent);
+    }
+
+    .nav-button.active {
+      background: rgba(63, 81, 181, 0.12);
+      color: var(--accent);
+      box-shadow: inset 0 0 0 1px rgba(63, 81, 181, 0.2);
+    }
+
+    .page-container {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .page {
+      display: none;
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .page.active {
+      display: block;
     }
 
     h1 {
@@ -172,6 +241,68 @@
       background: var(--chip-bg);
     }
 
+    .inventory-header {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .inventory-instructions {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.9rem;
+      flex: 1 1 240px;
+    }
+
+    .hidden-file-input {
+      display: none;
+    }
+
+    .saldo-loja-input {
+      width: 100%;
+      border: 1px solid #d1d5db;
+      border-radius: 10px;
+      padding: 8px 10px;
+      font-size: 0.95rem;
+      transition: border 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .saldo-loja-input:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(63, 81, 181, 0.2);
+    }
+
+    .status-dot {
+      width: 14px;
+      height: 14px;
+      border-radius: 999px;
+      display: inline-block;
+      background: #cbd5f5;
+      box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.6);
+    }
+
+    .status-dot--ok {
+      background: #22c55e;
+    }
+
+    .status-dot--alert {
+      background: #ef4444;
+    }
+
+    .status-dot--pending {
+      background: #9ca3af;
+    }
+
+    .empty-state {
+      margin-top: 16px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
     table {
       width: 100%;
       border-collapse: collapse;
@@ -240,6 +371,28 @@
 
       .chip {
         padding: 16px;
+      }
+    }
+
+    @media (max-width: 960px) {
+      .app-shell {
+        flex-direction: column;
+      }
+
+      .sidebar {
+        flex-direction: row;
+        align-items: center;
+        gap: 8px;
+        overflow-x: auto;
+      }
+
+      .sidebar-title {
+        display: none;
+      }
+
+      .nav-button {
+        flex: 1 0 auto;
+        text-align: center;
       }
     }
 
@@ -354,130 +507,172 @@
   </style>
 </head>
 <body>
-  <h1>Controle de Estoque</h1>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="sidebar-title">Paginação</div>
+      <button class="nav-button active" data-target="manual-page">Contagem Manual</button>
+      <button class="nav-button" data-target="conferencia-page">Conferência de Estoque</button>
+    </aside>
+    <main class="page-container">
+      <section class="page active" id="manual-page">
+        <h1>Controle de Estoque</h1>
 
-  <div class="layout-grid">
-    <div class="chip" id="data-entry-chip">
-      <div class="chip-section-title">Inserção de Dados</div>
-      <div class="inputs-row">
-        <label for="auto-code">
-          Campo Automático (Leitor)
-          <input id="auto-code" type="text" autocomplete="off" spellcheck="false" placeholder="Aproxime o leitor aqui" />
-        </label>
-      </div>
-      <div class="inputs-row double">
-        <label for="manual-code">
-          Código Manual
-          <input id="manual-code" type="text" placeholder="Informe o código" />
-        </label>
-        <label for="manual-qty">
-          Quantidade
-          <input id="manual-qty" type="number" min="1" value="1" />
-        </label>
-        <div class="manual-actions">
-          <button class="button" id="manual-add">Adicionar</button>
-          <button class="button secondary" id="manual-check">Conferir</button>
-        </div>
-      </div>
-      <div class="inputs-row double">
-        <label for="store-select">
-          Loja
-          <select id="store-select">
-            <option value="Jorel Chicuta">Jorel Chicuta</option>
-            <option value="Jorel Avenida">Jorel Avenida</option>
-            <option value="Exótica">Exótica</option>
-          </select>
-        </label>
-        <label for="product-select">
-          Produto
-          <select id="product-select">
-            <option value="Anel">Anel</option>
-            <option value="Brinco">Brinco</option>
-            <option value="Pingente">Pingente</option>
-            <option value="Corrente">Corrente</option>
-            <option value="Pulseira">Pulseira</option>
-            <option value="Aliança">Aliança</option>
-            <option value="Relógio">Relógio</option>
-            <option value="Armação">Armação</option>
-            <option value="Solar">Solar</option>
-            <option value="Outro">Outro</option>
-          </select>
-        </label>
-      </div>
-    </div>
+        <div class="layout-grid">
+          <div class="chip" id="data-entry-chip">
+            <div class="chip-section-title">Inserção de Dados</div>
+            <div class="inputs-row">
+              <label for="auto-code">
+                Campo Automático (Leitor)
+                <input id="auto-code" type="text" autocomplete="off" spellcheck="false" placeholder="Aproxime o leitor aqui" />
+              </label>
+            </div>
+            <div class="inputs-row double">
+              <label for="manual-code">
+                Código Manual
+                <input id="manual-code" type="text" placeholder="Informe o código" />
+              </label>
+              <label for="manual-qty">
+                Quantidade
+                <input id="manual-qty" type="number" min="1" value="1" />
+              </label>
+              <div class="manual-actions">
+                <button class="button" id="manual-add">Adicionar</button>
+                <button class="button secondary" id="manual-check">Conferir</button>
+              </div>
+            </div>
+            <div class="inputs-row double">
+              <label for="store-select">
+                Loja
+                <select id="store-select">
+                  <option value="Jorel Chicuta">Jorel Chicuta</option>
+                  <option value="Jorel Avenida">Jorel Avenida</option>
+                  <option value="Exótica">Exótica</option>
+                </select>
+              </label>
+              <label for="product-select">
+                Produto
+                <select id="product-select">
+                  <option value="Anel">Anel</option>
+                  <option value="Brinco">Brinco</option>
+                  <option value="Pingente">Pingente</option>
+                  <option value="Corrente">Corrente</option>
+                  <option value="Pulseira">Pulseira</option>
+                  <option value="Aliança">Aliança</option>
+                  <option value="Relógio">Relógio</option>
+                  <option value="Armação">Armação</option>
+                  <option value="Solar">Solar</option>
+                  <option value="Outro">Outro</option>
+                </select>
+              </label>
+            </div>
+          </div>
 
-    <div class="chip">
-      <div class="chip-section-title">Resumo Atual</div>
-      <div class="stats-grid">
-        <div class="stat-card">
-          <span class="stat-label">Quantidade Total</span>
-          <span class="stat-value" id="total-quantity">0</span>
-        </div>
-        <div class="stat-card">
-          <span class="stat-label">Último Código</span>
-          <span class="stat-value" id="last-code">---</span>
-        </div>
-        <div class="stat-card">
-          <span class="stat-label">Loja</span>
-          <span class="stat-value" id="summary-store">Jorel Chicuta</span>
-        </div>
-        <div class="stat-card">
-          <span class="stat-label">Produto</span>
-          <span class="stat-value" id="summary-product">Anel</span>
-        </div>
-      </div>
-    </div>
+          <div class="chip">
+            <div class="chip-section-title">Resumo Atual</div>
+            <div class="stats-grid">
+              <div class="stat-card">
+                <span class="stat-label">Quantidade Total</span>
+                <span class="stat-value" id="total-quantity">0</span>
+              </div>
+              <div class="stat-card">
+                <span class="stat-label">Último Código</span>
+                <span class="stat-value" id="last-code">---</span>
+              </div>
+              <div class="stat-card">
+                <span class="stat-label">Loja</span>
+                <span class="stat-value" id="summary-store">Jorel Chicuta</span>
+              </div>
+              <div class="stat-card">
+                <span class="stat-label">Produto</span>
+                <span class="stat-value" id="summary-product">Anel</span>
+              </div>
+            </div>
+          </div>
 
-    <div class="chip">
-      <div class="chip-section-title">Salvar e Exportar</div>
-      <div class="button-group">
-        <button class="button" id="print-pdf">Imprimir PDF</button>
-        <button class="button" id="save-data">Salvar</button>
-        <button class="button secondary" id="reset-data">Resetar</button>
-        <button class="button" id="download-table">Baixar Tabela</button>
-      </div>
-    </div>
-  </div>
+          <div class="chip">
+            <div class="chip-section-title">Salvar e Exportar</div>
+            <div class="button-group">
+              <button class="button" id="print-pdf">Imprimir PDF</button>
+              <button class="button" id="save-data">Salvar</button>
+              <button class="button secondary" id="reset-data">Resetar</button>
+              <button class="button" id="download-table">Baixar Tabela</button>
+            </div>
+          </div>
+        </div>
 
-  <div class="table-section">
-    <div class="table-title">Tabela de Códigos</div>
-    <div class="table-wrapper">
-      <table>
-        <thead>
-          <tr>
-            <th>
-              Código
-              <button class="sort-button" id="sort-toggle">Ordem ↑</button>
-            </th>
-            <th>Quantidade</th>
-            <th>Ações</th>
-          </tr>
-        </thead>
-        <tbody id="table-body"></tbody>
-      </table>
-    </div>
-  </div>
+        <div class="table-section">
+          <div class="table-title">Tabela de Códigos</div>
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>
+                    Código
+                    <button class="sort-button" id="sort-toggle">Ordem ↑</button>
+                  </th>
+                  <th>Quantidade</th>
+                  <th>Ações</th>
+                </tr>
+              </thead>
+              <tbody id="table-body"></tbody>
+            </table>
+          </div>
+        </div>
 
-  <div id="print-area">
-    <div id="print-title"></div>
-    <div class="print-columns">
-      <div class="print-column">
-        <table>
-          <thead>
-            <tr><th>Código</th><th>Quantidade</th></tr>
-          </thead>
-          <tbody id="print-table-left"></tbody>
-        </table>
-      </div>
-      <div class="print-column">
-        <table>
-          <thead>
-            <tr><th>Código</th><th>Quantidade</th></tr>
-          </thead>
-          <tbody id="print-table-right"></tbody>
-        </table>
-      </div>
-    </div>
+        <div id="print-area">
+          <div id="print-title"></div>
+          <div class="print-columns">
+            <div class="print-column">
+              <table>
+                <thead>
+                  <tr><th>Código</th><th>Quantidade</th></tr>
+                </thead>
+                <tbody id="print-table-left"></tbody>
+              </table>
+            </div>
+            <div class="print-column">
+              <table>
+                <thead>
+                  <tr><th>Código</th><th>Quantidade</th></tr>
+                </thead>
+                <tbody id="print-table-right"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="page" id="conferencia-page">
+        <h1>Conferência de Estoque</h1>
+
+        <div class="chip">
+          <div class="inventory-header">
+            <button class="button" id="import-xls">Importar XLS</button>
+            <input type="file" id="xls-input" accept=".xls,.xlsx" class="hidden-file-input" />
+            <p class="inventory-instructions">Importe um arquivo contendo as colunas Código, Produto e Saldo Contábil.</p>
+          </div>
+        </div>
+
+        <div class="table-section">
+          <div class="table-title">Saldos Conferidos</div>
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>Código</th>
+                  <th>Produto</th>
+                  <th>Saldo Contábil</th>
+                  <th>Saldo em Loja</th>
+                  <th>OK</th>
+                </tr>
+              </thead>
+              <tbody id="inventory-table-body"></tbody>
+            </table>
+          </div>
+          <div class="empty-state" id="inventory-empty">Importe um arquivo XLS para visualizar os saldos.</div>
+        </div>
+      </section>
+    </main>
   </div>
 
   <div id="modal-overlay" class="modal-overlay">
@@ -512,7 +707,11 @@
     </div>
   </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <script>
+    const navButtons = document.querySelectorAll('.nav-button');
+    const pages = document.querySelectorAll('.page');
+    const manualPage = document.getElementById('manual-page');
     const autoInput = document.getElementById('auto-code');
     const manualCodeInput = document.getElementById('manual-code');
     const manualQtyInput = document.getElementById('manual-qty');
@@ -547,10 +746,15 @@
     const editQtyInput = document.getElementById('edit-qty');
     const editCancel = document.getElementById('edit-cancel');
     const editSave = document.getElementById('edit-save');
+    const inventoryTableBody = document.getElementById('inventory-table-body');
+    const inventoryEmptyState = document.getElementById('inventory-empty');
+    const importButton = document.getElementById('import-xls');
+    const xlsInput = document.getElementById('xls-input');
 
     let dataEntries = [];
     let sortDirection = 'asc';
     let scanStart = null;
+    let inventoryData = [];
 
     const STORAGE_KEY = 'controle-estoque-data';
 
@@ -565,8 +769,281 @@
     };
 
     const focusAutoInput = () => {
+      if (!manualPage.classList.contains('active')) {
+        return;
+      }
       setTimeout(() => autoInput.focus({ preventScroll: true }), 50);
     };
+
+    const activatePage = (targetId) => {
+      pages.forEach((page) => {
+        page.classList.toggle('active', page.id === targetId);
+      });
+      navButtons.forEach((btn) => {
+        btn.classList.toggle('active', btn.dataset.target === targetId);
+      });
+      if (targetId === 'manual-page') {
+        focusAutoInput();
+      }
+    };
+
+    navButtons.forEach((button) => {
+      button.addEventListener('click', () => {
+        const target = button.dataset.target;
+        if (!target) return;
+        activatePage(target);
+      });
+    });
+
+    const normalizeHeader = (value) => {
+      if (value == null) return '';
+      return value
+        .toString()
+        .trim()
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '');
+    };
+
+    const parseSaldoNumber = (value) => {
+      if (value == null || value === '') return null;
+      if (typeof value === 'number') return value;
+      const normalized = value.toString().trim();
+      if (!normalized) return null;
+      const compact = normalized.replace(/\s+/g, '');
+      const hasComma = compact.includes(',');
+      const hasDot = compact.includes('.');
+      let candidate = compact;
+      if (hasComma && hasDot) {
+        candidate = candidate.replace(/\./g, '').replace(',', '.');
+      } else if (hasComma) {
+        candidate = candidate.replace(',', '.');
+      }
+      const parsed = Number(candidate);
+      if (!Number.isNaN(parsed)) {
+        return parsed;
+      }
+      return null;
+    };
+
+    const formatInventoryNumber = (value) => {
+      if (value == null || value === '') return '';
+      const number = Number(value);
+      if (Number.isNaN(number)) {
+        return value.toString();
+      }
+      return new Intl.NumberFormat('pt-BR', {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 4
+      }).format(number);
+    };
+
+    const updateStatusDot = (dot, entry) => {
+      dot.className = 'status-dot';
+      if (entry.saldoContabil == null) {
+        dot.classList.add('status-dot--pending');
+        dot.title = 'Saldo contábil inválido';
+        return;
+      }
+      if (entry.saldoLoja == null) {
+        dot.classList.add('status-dot--pending');
+        dot.title = 'Aguardando conferência';
+        return;
+      }
+      if (Math.abs(entry.saldoLoja - entry.saldoContabil) < 0.000001) {
+        dot.classList.add('status-dot--ok');
+        dot.title = 'Valores conferidos';
+      } else {
+        dot.classList.add('status-dot--alert');
+        dot.title = 'Divergência encontrada';
+      }
+    };
+
+    const renderInventoryTable = () => {
+      if (!inventoryTableBody || !inventoryEmptyState) return;
+      inventoryTableBody.innerHTML = '';
+      if (!inventoryData.length) {
+        inventoryEmptyState.classList.remove('hidden');
+        return;
+      }
+      inventoryEmptyState.classList.add('hidden');
+      inventoryData.forEach((entry, index) => {
+        const row = document.createElement('tr');
+        const codeCell = document.createElement('td');
+        codeCell.textContent = entry.codigo;
+        const productCell = document.createElement('td');
+        productCell.textContent = entry.produto || '—';
+        const saldoContabilCell = document.createElement('td');
+        const saldoDisplay = entry.saldoContabil != null ? entry.saldoContabil : entry.saldoTexto;
+        saldoContabilCell.textContent = formatInventoryNumber(saldoDisplay);
+        const saldoLojaCell = document.createElement('td');
+        const saldoInput = document.createElement('input');
+        saldoInput.type = 'number';
+        saldoInput.step = 'any';
+        saldoInput.min = '0';
+        saldoInput.className = 'saldo-loja-input';
+        saldoInput.dataset.index = index.toString();
+        saldoInput.value = entry.saldoLoja == null ? '' : entry.saldoLoja;
+        saldoLojaCell.append(saldoInput);
+        const statusCell = document.createElement('td');
+        const statusDot = document.createElement('span');
+        statusDot.className = 'status-dot';
+        updateStatusDot(statusDot, entry);
+        statusCell.append(statusDot);
+        row.append(codeCell, productCell, saldoContabilCell, saldoLojaCell, statusCell);
+        inventoryTableBody.append(row);
+      });
+    };
+
+    const buildHeaderMap = (rows) => {
+      for (let index = 0; index < rows.length; index += 1) {
+        const row = rows[index];
+        if (!row) continue;
+        const map = {};
+        row.forEach((cell, cellIndex) => {
+          const normalized = normalizeHeader(cell);
+          if (!normalized) return;
+          if (map.codigo == null && normalized.startsWith('codigo')) {
+            map.codigo = cellIndex;
+          }
+          if (map.produto == null && normalized === 'produto') {
+            map.produto = cellIndex;
+          }
+          if (map.saldoContabil == null && normalized.startsWith('saldo contabil')) {
+            map.saldoContabil = cellIndex;
+          }
+        });
+        if (map.codigo != null && map.produto != null && map.saldoContabil != null) {
+          return { headerIndex: index, map };
+        }
+      }
+      return null;
+    };
+
+    const processWorkbook = (workbook) => {
+      if (!workbook || !workbook.SheetNames || !workbook.SheetNames.length) {
+        alert('O arquivo selecionado não possui dados reconhecíveis.');
+        return;
+      }
+      const sheetName = workbook.SheetNames[0];
+      const worksheet = workbook.Sheets[sheetName];
+      if (!worksheet) {
+        alert('Não foi possível ler a planilha selecionada.');
+        return;
+      }
+      const rows = XLSX.utils.sheet_to_json(worksheet, { header: 1, raw: true, defval: '' });
+      if (!rows.length) {
+        alert('A planilha selecionada está vazia.');
+        inventoryData = [];
+        renderInventoryTable();
+        return;
+      }
+      const headerInfo = buildHeaderMap(rows);
+      if (!headerInfo) {
+        alert('Não foi possível localizar as colunas Código, Produto e Saldo Contábil.');
+        inventoryData = [];
+        renderInventoryTable();
+        return;
+      }
+      const { headerIndex, map } = headerInfo;
+      const imported = [];
+      for (let rowIndex = headerIndex + 1; rowIndex < rows.length; rowIndex += 1) {
+        const row = rows[rowIndex];
+        if (!row) continue;
+        const isEmpty = ['codigo', 'produto', 'saldoContabil'].every((key) => {
+          const cell = row[map[key]];
+          return cell == null || cell === '';
+        });
+        if (isEmpty) {
+          if (imported.length) {
+            break;
+          }
+          continue;
+        }
+        const codeRaw = row[map.codigo];
+        const productRaw = row[map.produto];
+        const saldoRaw = row[map.saldoContabil];
+        const code = (codeRaw ?? '').toString().trim();
+        const product = (productRaw ?? '').toString().trim();
+        if (!code) {
+          continue;
+        }
+        const parsedSaldo = parseSaldoNumber(saldoRaw);
+        imported.push({
+          codigo: code,
+          produto: product,
+          saldoContabil: parsedSaldo,
+          saldoTexto: saldoRaw == null ? '' : saldoRaw.toString().trim(),
+          saldoLoja: null
+        });
+      }
+      if (!imported.length) {
+        alert('Nenhum registro válido foi encontrado no arquivo selecionado.');
+        inventoryData = [];
+        renderInventoryTable();
+        return;
+      }
+      inventoryData = imported;
+      renderInventoryTable();
+      activatePage('conferencia-page');
+    };
+
+    if (importButton && xlsInput) {
+      importButton.addEventListener('click', () => {
+        xlsInput.click();
+      });
+
+      xlsInput.addEventListener('change', (event) => {
+        const { files } = event.target;
+        if (!files || !files.length) return;
+        const file = files[0];
+        const reader = new FileReader();
+        reader.onload = (loadEvent) => {
+          try {
+            const data = new Uint8Array(loadEvent.target.result);
+            const workbook = XLSX.read(data, { type: 'array' });
+            processWorkbook(workbook);
+          } catch (error) {
+            console.error('Erro ao importar XLS', error);
+            alert('Não foi possível importar o arquivo selecionado.');
+          }
+        };
+        reader.onerror = () => {
+          console.error('Erro ao ler o arquivo selecionado.');
+          alert('Não foi possível ler o arquivo selecionado.');
+        };
+        reader.readAsArrayBuffer(file);
+        xlsInput.value = '';
+      });
+    }
+
+    if (inventoryTableBody) {
+      inventoryTableBody.addEventListener('input', (event) => {
+        const target = event.target;
+        if (!(target instanceof HTMLInputElement)) return;
+        if (!target.classList.contains('saldo-loja-input')) return;
+        const index = Number(target.dataset.index);
+        if (Number.isNaN(index) || !inventoryData[index]) return;
+        const rawValue = target.value;
+        if (rawValue === '') {
+          inventoryData[index].saldoLoja = null;
+        } else {
+          const normalized = rawValue.replace(',', '.');
+          const parsed = Number(normalized);
+          if (Number.isNaN(parsed)) {
+            return;
+          }
+          inventoryData[index].saldoLoja = parsed;
+        }
+        const row = target.closest('tr');
+        const dot = row ? row.querySelector('.status-dot') : null;
+        if (dot instanceof HTMLElement) {
+          updateStatusDot(dot, inventoryData[index]);
+        }
+      });
+    }
+
+    renderInventoryTable();
 
     const updateSummary = () => {
       const total = dataEntries.reduce((sum, entry) => sum + entry.quantity, 0);

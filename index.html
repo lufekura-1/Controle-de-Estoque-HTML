@@ -387,12 +387,16 @@
         background: white;
       }
 
-      .inventory-app > *:not(.print-surface.print-ready) {
+      .inventory-app > :not(#inventory-report-area) {
         display: none !important;
       }
 
-      .print-surface.print-ready {
+      #inventory-report-area.print-ready {
         display: block !important;
+        width: 100%;
+        padding: 24px;
+        box-sizing: border-box;
+        background: white;
       }
     }
   </style>
@@ -550,73 +554,74 @@
         <div class="empty-state" id="inventory-empty">Importe um arquivo XLS ou adicione códigos para iniciar a conferência.</div>
       </div>
 
-      <div id="inventory-report-area" class="print-surface">
-        <h2 id="inventory-report-title"></h2>
+    </section>
+
+    <div id="inventory-report-area" class="print-surface">
+      <h2 id="inventory-report-title"></h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Resumo</th>
+            <th>Valor</th>
+          </tr>
+        </thead>
+        <tbody id="inventory-report-overview"></tbody>
+      </table>
+
+      <div class="report-section">
+        <h3>Códigos Incorretos</h3>
         <table>
           <thead>
             <tr>
-              <th>Resumo</th>
-              <th>Valor</th>
+              <th>Código</th>
+              <th>Saldo Contábil</th>
+              <th>Saldo em Loja</th>
             </tr>
           </thead>
-          <tbody id="inventory-report-overview"></tbody>
+          <tbody id="inventory-report-incorrect"></tbody>
         </table>
-
-        <div class="report-section">
-          <h3>Códigos Incorretos</h3>
-          <table>
-            <thead>
-              <tr>
-                <th>Código</th>
-                <th>Saldo Contábil</th>
-                <th>Saldo em Loja</th>
-              </tr>
-            </thead>
-            <tbody id="inventory-report-incorrect"></tbody>
-          </table>
-        </div>
-
-        <div class="report-section">
-          <h3>Não Cadastrados</h3>
-          <table>
-            <thead>
-              <tr>
-                <th>Código</th>
-                <th>Quantidade</th>
-              </tr>
-            </thead>
-            <tbody id="inventory-report-non-registered"></tbody>
-          </table>
-        </div>
-
-        <div class="report-section">
-          <h3>Códigos Faltando</h3>
-          <table>
-            <thead>
-              <tr>
-                <th>Código</th>
-                <th>Esperado</th>
-                <th>Encontrado</th>
-              </tr>
-            </thead>
-            <tbody id="inventory-report-missing"></tbody>
-          </table>
-        </div>
-
-        <div class="report-section">
-          <h3>Códigos Negativos</h3>
-          <table>
-            <thead>
-              <tr>
-                <th>Código</th>
-                <th>Saldo Contábil</th>
-              </tr>
-            </thead>
-            <tbody id="inventory-report-negative"></tbody>
-          </table>
-        </div>
       </div>
-    </section>
+
+      <div class="report-section">
+        <h3>Não Cadastrados</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Código</th>
+              <th>Quantidade</th>
+            </tr>
+          </thead>
+          <tbody id="inventory-report-non-registered"></tbody>
+        </table>
+      </div>
+
+      <div class="report-section">
+        <h3>Códigos Faltando</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Código</th>
+              <th>Esperado</th>
+              <th>Encontrado</th>
+            </tr>
+          </thead>
+          <tbody id="inventory-report-missing"></tbody>
+        </table>
+      </div>
+
+      <div class="report-section">
+        <h3>Códigos Negativos</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Código</th>
+              <th>Saldo Contábil</th>
+            </tr>
+          </thead>
+          <tbody id="inventory-report-negative"></tbody>
+        </table>
+      </div>
+    </div>
   </main>
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <script>

@@ -610,6 +610,18 @@
     </div>
   </nav>
   <main class="inventory-app">
+    <nav class="top-menu" aria-label="Ações rápidas">
+      <div class="top-menu-group">
+        <button class="button button--green" id="inventory-print-report">Imprimir Relatório</button>
+        <button class="button button--green" id="inventory-save">Salvar Conferência</button>
+        <button class="button button--green" id="inventory-export-data">Exportar CSV</button>
+      </div>
+      <div class="top-menu-group">
+        <button class="button" id="import-xls">Importar XLS</button>
+        <button class="button button--orange" id="inventory-reset">Resetar Dados</button>
+      </div>
+      <input type="file" id="xls-input" accept=".xls,.xlsx" class="hidden-file-input" />
+    </nav>
     <section class="inventory-page" id="conferencia-page">
       <h1>Conferência de Estoque</h1>
 

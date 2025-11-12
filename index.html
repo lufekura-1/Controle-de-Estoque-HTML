@@ -36,6 +36,58 @@
       max-width: 1400px;
     }
 
+    .top-menu {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--chip-bg);
+      border-radius: 14px;
+      box-shadow: var(--shadow);
+      padding: 8px 16px;
+      min-height: 50px;
+      margin-bottom: 24px;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .top-menu-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .top-menu-group:last-of-type {
+      margin-left: auto;
+    }
+
+    .top-menu .button {
+      padding: 8px 16px;
+      font-size: 0.9rem;
+      border-radius: 999px;
+      height: 32px;
+      box-shadow: none;
+    }
+
+    .top-menu .button:hover {
+      box-shadow: 0 6px 12px rgba(63, 81, 181, 0.25);
+    }
+
+    .button.button--green {
+      background: #22c55e;
+    }
+
+    .button.button--green:hover {
+      box-shadow: 0 6px 12px rgba(34, 197, 94, 0.3);
+    }
+
+    .button.button--orange {
+      background: #f97316;
+    }
+
+    .button.button--orange:hover {
+      box-shadow: 0 6px 12px rgba(249, 115, 22, 0.3);
+    }
+
     .inventory-page {
       width: 100%;
     }
@@ -55,6 +107,10 @@
       gap: 20px;
       max-width: 1200px;
       margin: 0 auto 32px auto;
+    }
+
+    #inventory-data-entry {
+      grid-column: 1 / -1;
     }
 
     .summary-wrapper {
@@ -523,6 +579,18 @@
 </head>
 <body>
   <main class="inventory-app">
+    <nav class="top-menu" aria-label="Ações rápidas">
+      <div class="top-menu-group">
+        <button class="button button--green" id="inventory-print-report">Imprimir Relatório</button>
+        <button class="button button--green" id="inventory-save">Salvar Conferência</button>
+        <button class="button button--green" id="inventory-export-data">Exportar CSV</button>
+      </div>
+      <div class="top-menu-group">
+        <button class="button" id="import-xls">Importar XLS</button>
+        <button class="button button--orange" id="inventory-reset">Resetar Dados</button>
+      </div>
+      <input type="file" id="xls-input" accept=".xls,.xlsx" class="hidden-file-input" />
+    </nav>
     <section class="inventory-page" id="conferencia-page">
       <h1>Conferência de Estoque</h1>
 
@@ -591,17 +659,6 @@
           </div>
         </div>
 
-        <div class="chip" id="inventory-actions">
-          <div class="chip-section-title">Ações Rápidas</div>
-          <div class="button-stack">
-            <button class="button" id="inventory-print-report">Imprimir Relatório</button>
-            <button class="button" id="inventory-save">Salvar Conferência</button>
-            <button class="button" id="inventory-export-data">Exportar CSV</button>
-            <button class="button" id="import-xls">Importar XLS</button>
-            <button class="button secondary" id="inventory-reset">Resetar Dados</button>
-          </div>
-          <input type="file" id="xls-input" accept=".xls,.xlsx" class="hidden-file-input" />
-        </div>
       </div>
 
       <div class="summary-wrapper">

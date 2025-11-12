@@ -117,18 +117,14 @@
       display: grid;
       grid-template-columns: minmax(480px, 3fr) minmax(240px, 1fr);
       align-items: stretch;
-      gap: 20px;
+      gap: 16px;
       max-width: 1200px;
-      margin: 0 auto 32px auto;
+      margin: 0 auto 28px auto;
     }
 
-    #inventory-data-entry {
+    #inventory-data-entry,
+    #inventory-summary {
       grid-column: 1 / -1;
-    }
-
-    .summary-wrapper {
-      max-width: 1200px;
-      margin: 0 auto 24px auto;
     }
 
     .chip {
@@ -623,76 +619,7 @@
       <input type="file" id="xls-input" accept=".xls,.xlsx" class="hidden-file-input" />
     </nav>
     <section class="inventory-page" id="conferencia-page">
-      <h1>Conferência de Estoque</h1>
-
       <div class="layout-grid">
-        <div class="chip" id="inventory-data-entry">
-          <div class="chip-section-title">Inserção de Dados</div>
-          <p class="inventory-reminder">Selecione a loja e o produto antes de iniciar o cadastro ou a importação.</p>
-          <div class="inputs-row">
-            <label for="inventory-auto-code">
-              Campo Automático (Leitor)
-              <input
-                id="inventory-auto-code"
-                data-role="auto-input"
-                type="text"
-                autocomplete="off"
-                spellcheck="false"
-                placeholder="Aproxime o leitor aqui"
-              />
-            </label>
-          </div>
-          <div class="inputs-row double">
-            <label for="inventory-manual-code">
-              Código Manual
-              <input id="inventory-manual-code" type="text" placeholder="Informe o código" />
-            </label>
-            <label for="inventory-manual-qty">
-              Quantidade
-              <input id="inventory-manual-qty" type="number" min="1" value="1" />
-            </label>
-            <div class="manual-actions">
-              <button class="button" id="inventory-manual-add">Adicionar</button>
-            </div>
-          </div>
-          <div class="inputs-row double">
-            <label for="inventory-store-select">
-              Loja
-              <select id="inventory-store-select">
-                <option value="">Selecione a loja</option>
-                <option value="Jorel Chicuta">Jorel Chicuta</option>
-                <option value="Jorel Avenida">Jorel Avenida</option>
-                <option value="Exótica">Exótica</option>
-              </select>
-            </label>
-            <label for="inventory-product-select">
-              Produto
-              <select id="inventory-product-select">
-                <option value="">Selecione o produto</option>
-                <option value="Anel">Anel</option>
-                <option value="Brinco">Brinco</option>
-                <option value="Pingente">Pingente</option>
-                <option value="Corrente">Corrente</option>
-                <option value="Pulseira">Pulseira</option>
-                <option value="Aliança">Aliança</option>
-                <option value="Relógio">Relógio</option>
-                <option value="Armação">Armação</option>
-                <option value="Solar">Solar</option>
-                <option value="Outro">Outro</option>
-              </select>
-            </label>
-          </div>
-          <div class="inventory-note">
-            <p class="inventory-instructions">
-              Importe um arquivo contendo as colunas Código, Produto e Saldo Contábil. Os valores inseridos manualmente
-              serão somados ao Saldo em Loja para conferência.
-            </p>
-          </div>
-        </div>
-
-      </div>
-
-      <div class="summary-wrapper">
         <div class="chip chip--compact" id="inventory-summary">
           <div class="chip-section-title">Resumo Atual</div>
           <div class="stats-grid">
@@ -766,6 +693,70 @@
             </div>
           </div>
         </div>
+
+        <div class="chip" id="inventory-data-entry">
+          <div class="chip-section-title">Inserção de Dados</div>
+          <p class="inventory-reminder">Selecione a loja e o produto antes de iniciar o cadastro ou a importação.</p>
+          <div class="inputs-row">
+            <label for="inventory-auto-code">
+              Campo Automático (Leitor)
+              <input
+                id="inventory-auto-code"
+                data-role="auto-input"
+                type="text"
+                autocomplete="off"
+                spellcheck="false"
+                placeholder="Aproxime o leitor aqui"
+              />
+            </label>
+          </div>
+          <div class="inputs-row double">
+            <label for="inventory-manual-code">
+              Código Manual
+              <input id="inventory-manual-code" type="text" placeholder="Informe o código" />
+            </label>
+            <label for="inventory-manual-qty">
+              Quantidade
+              <input id="inventory-manual-qty" type="number" min="1" value="1" />
+            </label>
+            <div class="manual-actions">
+              <button class="button" id="inventory-manual-add">Adicionar</button>
+            </div>
+          </div>
+          <div class="inputs-row double">
+            <label for="inventory-store-select">
+              Loja
+              <select id="inventory-store-select">
+                <option value="">Selecione a loja</option>
+                <option value="Jorel Chicuta">Jorel Chicuta</option>
+                <option value="Jorel Avenida">Jorel Avenida</option>
+                <option value="Exótica">Exótica</option>
+              </select>
+            </label>
+            <label for="inventory-product-select">
+              Produto
+              <select id="inventory-product-select">
+                <option value="">Selecione o produto</option>
+                <option value="Anel">Anel</option>
+                <option value="Brinco">Brinco</option>
+                <option value="Pingente">Pingente</option>
+                <option value="Corrente">Corrente</option>
+                <option value="Pulseira">Pulseira</option>
+                <option value="Aliança">Aliança</option>
+                <option value="Relógio">Relógio</option>
+                <option value="Armação">Armação</option>
+                <option value="Solar">Solar</option>
+                <option value="Outro">Outro</option>
+              </select>
+            </label>
+          </div>
+          <div class="inventory-note">
+            <p class="inventory-instructions">
+              Importe um arquivo contendo as colunas Código, Produto e Saldo Contábil. Os valores inseridos manualmente
+              serão somados ao Saldo em Loja para conferência.
+            </p>
+          </div>
+        </div>
       </div>
 
       <div class="modal-overlay" id="inventory-breakdown-modal" aria-hidden="true">
@@ -784,7 +775,6 @@
       </div>
 
       <div class="table-section">
-        <div class="table-title">Saldos Conferidos</div>
         <div class="table-wrapper">
           <table>
             <thead>

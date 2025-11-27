@@ -606,28 +606,28 @@
               <span class="stat-value" id="inventory-total-registered">0</span>
             </div>
             <div class="stat-card stat-card--action">
-              <span class="stat-label">Não Cadastrado</span>
+              <span class="stat-label">Não Importados</span>
               <div class="stat-value-row">
-                <span class="stat-value" id="inventory-non-registered-count">0</span>
+                <span class="stat-value" id="inventory-non-imported-count">0</span>
                 <button
                   class="stat-action-button"
                   type="button"
-                  data-breakdown-target="nonRegistered"
-                  aria-label="Ver códigos não cadastrados"
+                  data-breakdown-target="nonImported"
+                  aria-label="Ver códigos não importados"
                 >
                   Ver
                 </button>
               </div>
             </div>
             <div class="stat-card stat-card--action">
-              <span class="stat-label">Faltando</span>
+              <span class="stat-label">Não Encontrados</span>
               <div class="stat-value-row">
-                <span class="stat-value" id="inventory-missing-count">0</span>
+                <span class="stat-value" id="inventory-not-found-count">0</span>
                 <button
                   class="stat-action-button"
                   type="button"
-                  data-breakdown-target="missing"
-                  aria-label="Ver códigos faltando"
+                  data-breakdown-target="notFound"
+                  aria-label="Ver códigos não encontrados"
                 >
                   Ver
                 </button>
@@ -648,14 +648,14 @@
               </div>
             </div>
             <div class="stat-card stat-card--action">
-              <span class="stat-label">Incorretos</span>
+              <span class="stat-label">Qtd. Divergente</span>
               <div class="stat-value-row">
-                <span class="stat-value" id="inventory-incorrect-count">0</span>
+                <span class="stat-value" id="inventory-divergent-count">0</span>
                 <button
                   class="stat-action-button"
                   type="button"
-                  data-breakdown-target="incorrect"
-                  aria-label="Ver códigos incorretos"
+                  data-breakdown-target="divergent"
+                  aria-label="Ver códigos com quantidade divergente"
                 >
                   Ver
                 </button>
@@ -740,9 +740,9 @@
             <button type="button" class="modal-close" id="inventory-modal-close" aria-label="Fechar modal">&times;</button>
           </div>
           <div class="modal-content">
-            <ul class="modal-list" id="inventory-incorrect-list"></ul>
-            <ul class="modal-list" id="inventory-non-registered-list"></ul>
-            <ul class="modal-list" id="inventory-missing-list"></ul>
+            <ul class="modal-list" id="inventory-divergent-list"></ul>
+            <ul class="modal-list" id="inventory-non-imported-list"></ul>
+            <ul class="modal-list" id="inventory-not-found-list"></ul>
             <ul class="modal-list" id="inventory-negative-list"></ul>
           </div>
         </div>
@@ -781,7 +781,7 @@
       </table>
 
       <div class="report-section">
-        <h3>Códigos Incorretos</h3>
+        <h3>Códigos de Quantidade Divergente</h3>
         <table>
           <thead>
             <tr>
@@ -790,12 +790,12 @@
               <th>Saldo em Loja</th>
             </tr>
           </thead>
-          <tbody id="inventory-report-incorrect"></tbody>
+          <tbody id="inventory-report-divergent"></tbody>
         </table>
       </div>
 
       <div class="report-section">
-        <h3>Não Cadastrados</h3>
+        <h3>Códigos não Importados do Sistema</h3>
         <table>
           <thead>
             <tr>
@@ -803,12 +803,12 @@
               <th>Quantidade</th>
             </tr>
           </thead>
-          <tbody id="inventory-report-non-registered"></tbody>
+          <tbody id="inventory-report-non-imported"></tbody>
         </table>
       </div>
 
       <div class="report-section">
-        <h3>Códigos Faltando</h3>
+        <h3>Códigos não Encontrados na Loja</h3>
         <table>
           <thead>
             <tr>
@@ -817,7 +817,7 @@
               <th>Encontrado</th>
             </tr>
           </thead>
-          <tbody id="inventory-report-missing"></tbody>
+          <tbody id="inventory-report-not-found"></tbody>
         </table>
       </div>
 
@@ -847,16 +847,16 @@
     const inventoryTotals = {
       imported: document.getElementById('inventory-total-imported'),
       registered: document.getElementById('inventory-total-registered'),
-      nonRegistered: document.getElementById('inventory-non-registered-count'),
-      missing: document.getElementById('inventory-missing-count'),
+      nonImported: document.getElementById('inventory-non-imported-count'),
+      notFound: document.getElementById('inventory-not-found-count'),
       negatives: document.getElementById('inventory-negative-count'),
-      incorrect: document.getElementById('inventory-incorrect-count'),
+      divergent: document.getElementById('inventory-divergent-count'),
       lastCode: document.getElementById('inventory-last-code')
     };
     const inventoryBreakdownLists = {
-      incorrect: document.getElementById('inventory-incorrect-list'),
-      nonRegistered: document.getElementById('inventory-non-registered-list'),
-      missing: document.getElementById('inventory-missing-list'),
+      divergent: document.getElementById('inventory-divergent-list'),
+      nonImported: document.getElementById('inventory-non-imported-list'),
+      notFound: document.getElementById('inventory-not-found-list'),
       negative: document.getElementById('inventory-negative-list')
     };
     const breakdownModal = document.getElementById('inventory-breakdown-modal');
@@ -864,9 +864,9 @@
     const breakdownModalClose = document.getElementById('inventory-modal-close');
     const breakdownModalCard = breakdownModal ? breakdownModal.querySelector('.modal-card') : null;
     const breakdownTitles = {
-      incorrect: 'Códigos Incorretos',
-      nonRegistered: 'Códigos não cadastrados',
-      missing: 'Códigos Faltando',
+      divergent: 'Códigos de Quantidade Divergente',
+      nonImported: 'Códigos não Importados do Sistema',
+      notFound: 'Códigos não Encontrados na Loja',
       negative: 'Códigos Negativos'
     };
     let lastBreakdownTrigger = null;
@@ -881,9 +881,9 @@
     const inventoryReportArea = document.getElementById('inventory-report-area');
     const inventoryReportTitle = document.getElementById('inventory-report-title');
     const inventoryReportOverview = document.getElementById('inventory-report-overview');
-    const inventoryReportIncorrect = document.getElementById('inventory-report-incorrect');
-    const inventoryReportNonRegistered = document.getElementById('inventory-report-non-registered');
-    const inventoryReportMissing = document.getElementById('inventory-report-missing');
+    const inventoryReportDivergent = document.getElementById('inventory-report-divergent');
+    const inventoryReportNonImported = document.getElementById('inventory-report-non-imported');
+    const inventoryReportNotFound = document.getElementById('inventory-report-not-found');
     const inventoryReportNegative = document.getElementById('inventory-report-negative');
 
     let inventoryData = [];
@@ -1021,7 +1021,7 @@
       if (!breakdownModal) return;
       const normalizedType = Object.prototype.hasOwnProperty.call(inventoryBreakdownLists, type)
         ? type
-        : 'incorrect';
+        : 'divergent';
       lastBreakdownTrigger = trigger || null;
       if (breakdownModalTitle) {
         breakdownModalTitle.textContent = breakdownTitles[normalizedType] || 'Detalhes';
@@ -1077,53 +1077,58 @@
     const computeInventoryMetrics = () => {
       const totals = { imported: 0, registered: 0, negatives: 0 };
       let compared = 0;
-      let incorrect = 0;
+      let divergent = 0;
       const breakdown = {
-        incorrect: [],
-        nonRegistered: [],
-        missing: [],
+        divergent: [],
+        nonImported: [],
+        notFound: [],
         negative: []
       };
 
       inventoryData.forEach((entry) => {
         const contabil = typeof entry.saldoContabil === 'number' ? entry.saldoContabil : null;
         const loja = typeof entry.saldoLoja === 'number' ? entry.saldoLoja : null;
+        const hasReportQuantity = contabil != null;
+        const hasStoreQuantity = loja != null;
 
-        if (contabil != null) {
+        if (hasReportQuantity) {
           totals.imported += contabil;
-          if (contabil < 0) {
-            totals.negatives += 1;
-            breakdown.negative.push({ code: entry.codigo, saldoContabil: contabil });
-          }
         }
 
-        if (loja != null) {
+        if (hasStoreQuantity) {
           totals.registered += loja;
         }
 
-        if (contabil != null && loja != null) {
-          compared += 1;
-          if (Math.abs(contabil - loja) >= 0.000001) {
-            incorrect += 1;
-            breakdown.incorrect.push({ code: entry.codigo, saldoContabil: contabil, saldoLoja: loja });
-            if (loja < contabil) {
-              breakdown.missing.push({ code: entry.codigo, esperado: contabil, encontrado: loja });
-            }
-          }
-        } else if (contabil != null && loja == null) {
-          breakdown.missing.push({ code: entry.codigo, esperado: contabil, encontrado: null });
+        if (hasReportQuantity && contabil < 0 && !hasStoreQuantity) {
+          totals.negatives += 1;
+          breakdown.negative.push({ code: entry.codigo, saldoContabil: contabil });
+          return;
         }
 
-        if (contabil == null && loja != null) {
-          breakdown.nonRegistered.push({ code: entry.codigo, quantidade: loja });
+        if (hasStoreQuantity && !hasReportQuantity) {
+          breakdown.nonImported.push({ code: entry.codigo, quantidade: loja });
+          return;
+        }
+
+        if (hasReportQuantity && !hasStoreQuantity) {
+          breakdown.notFound.push({ code: entry.codigo, esperado: contabil, encontrado: 0 });
+          return;
+        }
+
+        if (hasReportQuantity && hasStoreQuantity) {
+          compared += 1;
+          if (Math.abs(contabil - loja) >= 0.000001) {
+            divergent += 1;
+            breakdown.divergent.push({ code: entry.codigo, saldoContabil: contabil, saldoLoja: loja });
+          }
         }
       });
 
-      const matchPercentage = compared === 0 ? 0 : ((compared - incorrect) / compared) * 100;
+      const matchPercentage = compared === 0 ? 0 : ((compared - divergent) / compared) * 100;
 
       return {
         totals,
-        counters: { compared, incorrect, matchPercentage },
+        counters: { compared, divergent, matchPercentage },
         breakdown
       };
     };
@@ -1135,23 +1140,23 @@
       inventoryTotals.imported.textContent = formatInventoryNumber(totals.imported);
       inventoryTotals.registered.textContent = formatInventoryNumber(totals.registered);
       inventoryTotals.negatives.textContent = breakdown.negative.length.toString();
-      inventoryTotals.incorrect.textContent = breakdown.incorrect.length.toString();
-      inventoryTotals.nonRegistered.textContent = breakdown.nonRegistered.length.toString();
-      inventoryTotals.missing.textContent = breakdown.missing.length.toString();
+      inventoryTotals.divergent.textContent = breakdown.divergent.length.toString();
+      inventoryTotals.nonImported.textContent = breakdown.nonImported.length.toString();
+      inventoryTotals.notFound.textContent = breakdown.notFound.length.toString();
 
       fillList(
-        inventoryBreakdownLists.incorrect,
-        breakdown.incorrect,
+        inventoryBreakdownLists.divergent,
+        breakdown.divergent,
         (item) => `${item.code} • Contábil: ${displayNumber(item.saldoContabil)} | Loja: ${displayNumber(item.saldoLoja)}`
       );
       fillList(
-        inventoryBreakdownLists.nonRegistered,
-        breakdown.nonRegistered,
+        inventoryBreakdownLists.nonImported,
+        breakdown.nonImported,
         (item) => `${item.code} • Quantidade: ${displayNumber(item.quantidade)}`
       );
       fillList(
-        inventoryBreakdownLists.missing,
-        breakdown.missing,
+        inventoryBreakdownLists.notFound,
+        breakdown.notFound,
         (item) => `${item.code} • Esperado: ${displayNumber(item.esperado)} | Encontrado: ${displayNumber(item.encontrado)}`
       );
       fillList(
@@ -1487,9 +1492,9 @@
         !inventoryReportArea ||
         !inventoryReportTitle ||
         !inventoryReportOverview ||
-        !inventoryReportIncorrect ||
-        !inventoryReportNonRegistered ||
-        !inventoryReportMissing ||
+        !inventoryReportDivergent ||
+        !inventoryReportNonImported ||
+        !inventoryReportNotFound ||
         !inventoryReportNegative
       ) {
         return false;
@@ -1503,9 +1508,9 @@
         { label: 'Quantidade Importada', value: formatInventoryNumber(totals.imported) },
         { label: 'Quantidade Cadastrada', value: formatInventoryNumber(totals.registered) },
         { label: 'Códigos Negativos', value: breakdown.negative.length.toString() },
-        { label: 'Não Cadastrado', value: breakdown.nonRegistered.length.toString() },
-        { label: 'Faltando', value: breakdown.missing.length.toString() },
-        { label: 'Códigos Incorretos', value: breakdown.incorrect.length.toString() }
+        { label: 'Não Importados do Sistema', value: breakdown.nonImported.length.toString() },
+        { label: 'Não Encontrados na Loja', value: breakdown.notFound.length.toString() },
+        { label: 'Qtd. Divergente', value: breakdown.divergent.length.toString() }
       ];
 
       inventoryReportOverview.innerHTML = '';
@@ -1542,22 +1547,22 @@
       };
 
       fillReportTable(
-        inventoryReportIncorrect,
-        breakdown.incorrect,
+        inventoryReportDivergent,
+        breakdown.divergent,
         (item) => [item.code, displayNumber(item.saldoContabil), displayNumber(item.saldoLoja)],
         3
       );
 
       fillReportTable(
-        inventoryReportNonRegistered,
-        breakdown.nonRegistered,
+        inventoryReportNonImported,
+        breakdown.nonImported,
         (item) => [item.code, displayNumber(item.quantidade)],
         2
       );
 
       fillReportTable(
-        inventoryReportMissing,
-        breakdown.missing,
+        inventoryReportNotFound,
+        breakdown.notFound,
         (item) => [item.code, displayNumber(item.esperado), displayNumber(item.encontrado)],
         3
       );

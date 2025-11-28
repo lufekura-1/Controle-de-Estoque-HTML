@@ -332,7 +332,7 @@
       margin: 0 auto;
       display: flex;
       flex-direction: column;
-      gap: 14px;
+      gap: 18px;
     }
 
     .table-title {
@@ -346,6 +346,12 @@
       border-radius: 18px;
       box-shadow: var(--shadow);
       background: var(--chip-bg);
+    }
+
+    .table-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
     }
 
     table {
@@ -749,21 +755,43 @@
       </div>
 
       <div class="table-section">
-        <div class="table-wrapper">
-          <table>
-            <thead>
-              <tr>
-                <th>Código</th>
-                <th>Produto</th>
-                <th>Saldo Contábil</th>
-                <th>Saldo em Loja</th>
-                <th>Status</th>
-              </tr>
-            </thead>
-            <tbody id="inventory-table-body"></tbody>
-          </table>
+        <div class="table-group">
+          <div class="table-title">Cadastrados</div>
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>Código</th>
+                  <th>Produto</th>
+                  <th>Saldo Contábil</th>
+                  <th>Saldo em Loja</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="inventory-registered-body"></tbody>
+            </table>
+          </div>
+          <div class="empty-state hidden" id="inventory-registered-empty">Nenhum produto cadastrado até o momento.</div>
         </div>
-        <div class="empty-state" id="inventory-empty">Importe um arquivo XLS ou adicione códigos para iniciar a conferência.</div>
+
+        <div class="table-group">
+          <div class="table-title">Aguardando Cadastro</div>
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>Código</th>
+                  <th>Produto</th>
+                  <th>Saldo Contábil</th>
+                  <th>Saldo em Loja</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="inventory-waiting-body"></tbody>
+            </table>
+          </div>
+          <div class="empty-state" id="inventory-waiting-empty">Importe um arquivo XLS ou adicione códigos para iniciar a conferência.</div>
+        </div>
       </div>
 
     </section>
@@ -871,8 +899,10 @@
     };
     let lastBreakdownTrigger = null;
     const breakdownTriggerButtons = document.querySelectorAll('[data-breakdown-target]');
-    const inventoryTableBody = document.getElementById('inventory-table-body');
-    const inventoryEmptyState = document.getElementById('inventory-empty');
+    const inventoryRegisteredBody = document.getElementById('inventory-registered-body');
+    const inventoryWaitingBody = document.getElementById('inventory-waiting-body');
+    const inventoryRegisteredEmpty = document.getElementById('inventory-registered-empty');
+    const inventoryWaitingEmpty = document.getElementById('inventory-waiting-empty');
     const importButton = document.getElementById('import-xls');
     const xlsInput = document.getElementById('xls-input');
     const inventoryPrintButton = document.getElementById('inventory-print-report');
@@ -1186,41 +1216,80 @@
       }
     };
 
-    const renderInventoryTable = () => {
-      if (!inventoryTableBody || !inventoryEmptyState) return;
-      inventoryTableBody.innerHTML = '';
-      if (!inventoryData.length) {
-        inventoryEmptyState.classList.remove('hidden');
-        updateInventorySummary();
-        return;
+    const buildSaldoContabilLabel = (entry) => {
+      if (entry.saldoContabil != null) {
+        return formatInventoryNumber(entry.saldoContabil);
       }
-      inventoryEmptyState.classList.add('hidden');
-      inventoryData.forEach((entry) => {
-        const row = document.createElement('tr');
-        const codeCell = document.createElement('td');
-        codeCell.textContent = entry.codigo;
-        const productCell = document.createElement('td');
-        productCell.textContent = entry.produto || '—';
-        const saldoContabilCell = document.createElement('td');
-        const saldoDisplay = entry.saldoContabil != null ? entry.saldoContabil : entry.saldoTexto;
-        saldoContabilCell.textContent = saldoDisplay != null && saldoDisplay !== '' ? formatInventoryNumber(saldoDisplay) : '—';
-        const saldoLojaCell = document.createElement('td');
-        const saldoInput = document.createElement('input');
-        saldoInput.type = 'number';
-        saldoInput.step = 'any';
-        saldoInput.min = '0';
-        saldoInput.className = 'saldo-loja-input';
-        saldoInput.dataset.code = entry.codigo;
-        saldoInput.value = entry.saldoLoja == null ? '' : entry.saldoLoja;
-        saldoLojaCell.append(saldoInput);
-        const statusCell = document.createElement('td');
-        const statusDot = document.createElement('span');
-        statusDot.className = 'status-dot';
-        updateStatusDot(statusDot, entry);
-        statusCell.append(statusDot);
-        row.append(codeCell, productCell, saldoContabilCell, saldoLojaCell, statusCell);
-        inventoryTableBody.append(row);
-      });
+      if (entry.manualOnly) {
+        return 'Não Importado';
+      }
+      const saldoDisplay = entry.saldoTexto;
+      return saldoDisplay != null && saldoDisplay !== '' ? formatInventoryNumber(saldoDisplay) : '—';
+    };
+
+    const createInventoryRow = (entry) => {
+      const row = document.createElement('tr');
+      const codeCell = document.createElement('td');
+      codeCell.textContent = entry.codigo;
+      const productCell = document.createElement('td');
+      productCell.textContent = entry.produto || '—';
+      const saldoContabilCell = document.createElement('td');
+      saldoContabilCell.textContent = buildSaldoContabilLabel(entry);
+      const saldoLojaCell = document.createElement('td');
+      const saldoInput = document.createElement('input');
+      saldoInput.type = 'number';
+      saldoInput.step = 'any';
+      saldoInput.min = '0';
+      saldoInput.className = 'saldo-loja-input';
+      saldoInput.dataset.code = entry.codigo;
+      saldoInput.value = entry.saldoLoja == null ? '' : entry.saldoLoja;
+      saldoLojaCell.append(saldoInput);
+      const statusCell = document.createElement('td');
+      const statusDot = document.createElement('span');
+      statusDot.className = 'status-dot';
+      updateStatusDot(statusDot, entry);
+      statusCell.append(statusDot);
+      row.append(codeCell, productCell, saldoContabilCell, saldoLojaCell, statusCell);
+      return row;
+    };
+
+    const renderInventoryTables = () => {
+      if (
+        !inventoryRegisteredBody ||
+        !inventoryWaitingBody ||
+        !inventoryRegisteredEmpty ||
+        !inventoryWaitingEmpty
+      )
+        return;
+
+      const registeredEntries = inventoryData
+        .filter((entry) => entry.saldoLoja != null || entry.manualOnly)
+        .slice()
+        .sort((a, b) => {
+          const timeA = a.registeredAt != null ? a.registeredAt : Number.MAX_SAFE_INTEGER;
+          const timeB = b.registeredAt != null ? b.registeredAt : Number.MAX_SAFE_INTEGER;
+          if (timeA === timeB) {
+            return inventoryData.indexOf(a) - inventoryData.indexOf(b);
+          }
+          return timeA - timeB;
+        });
+
+      const waitingEntries = inventoryData.filter((entry) => entry.saldoLoja == null && !entry.manualOnly);
+
+      const renderTable = (tbody, emptyState, entries) => {
+        tbody.innerHTML = '';
+        if (!entries.length) {
+          emptyState.classList.remove('hidden');
+          return;
+        }
+        emptyState.classList.add('hidden');
+        entries.forEach((entry) => {
+          tbody.append(createInventoryRow(entry));
+        });
+      };
+
+      renderTable(inventoryRegisteredBody, inventoryRegisteredEmpty, registeredEntries);
+      renderTable(inventoryWaitingBody, inventoryWaitingEmpty, waitingEntries);
       updateInventorySummary();
     };
 
@@ -1252,7 +1321,8 @@
                   : typeof item.saldoLoja === 'number'
                   ? item.saldoLoja
                   : parseSaldoNumber(item.saldoLoja),
-              manualOnly: Boolean(item.manualOnly) || item.saldoContabil == null
+              manualOnly: Boolean(item.manualOnly) || item.saldoContabil == null,
+              registeredAt: typeof item.registeredAt === 'number' ? item.registeredAt : null
             }))
             .filter((item) => item.codigo);
         }
@@ -1299,6 +1369,9 @@
         if (entry.manualOnly && entry.saldoContabil != null) {
           entry.manualOnly = false;
         }
+        if (entry.registeredAt == null) {
+          entry.registeredAt = Date.now();
+        }
       } else {
         entry = {
           codigo: sanitized,
@@ -1306,11 +1379,12 @@
           saldoContabil: null,
           saldoTexto: '',
           saldoLoja: quantity,
-          manualOnly: true
+          manualOnly: true,
+          registeredAt: Date.now()
         };
         inventoryData.push(entry);
       }
-      renderInventoryTable();
+      renderInventoryTables();
       syncStorage();
     };
 
@@ -1426,9 +1500,8 @@
         inventoryTotals.lastCode.textContent = '---';
         resetContextSelection();
         localStorage.removeItem(STORAGE_KEY);
-        renderInventoryTable();
+        renderInventoryTables();
         updateInventorySummary();
-        inventoryEmptyState.classList.remove('hidden');
         alert('Selecione a loja e o produto antes de iniciar um novo cadastro ou importação.');
         focusMissingContext();
       });
@@ -1442,34 +1515,38 @@
       syncStorage();
     });
 
-    if (inventoryTableBody) {
-      inventoryTableBody.addEventListener('input', (event) => {
-        const target = event.target;
-        if (!(target instanceof HTMLInputElement)) return;
-        if (!target.classList.contains('saldo-loja-input')) return;
-        const code = target.dataset.code;
-        if (!code) return;
-        const entry = inventoryData.find((item) => item.codigo === code);
-        if (!entry) return;
-        const rawValue = target.value;
-        if (rawValue === '') {
-          entry.saldoLoja = null;
-        } else {
-          const normalized = rawValue.replace(',', '.');
-          const parsed = Number(normalized);
-          if (Number.isNaN(parsed)) {
-            return;
-          }
-          entry.saldoLoja = parsed;
+    const handleSaldoInputChange = (event) => {
+      const target = event.target;
+      if (!(target instanceof HTMLInputElement)) return;
+      if (!target.classList.contains('saldo-loja-input')) return;
+      const code = target.dataset.code;
+      if (!code) return;
+      const entry = inventoryData.find((item) => item.codigo === code);
+      if (!entry) return;
+      const rawValue = target.value;
+      if (rawValue === '') {
+        entry.saldoLoja = null;
+      } else {
+        const normalized = rawValue.replace(',', '.');
+        const parsed = Number(normalized);
+        if (Number.isNaN(parsed)) {
+          return;
         }
-        const row = target.closest('tr');
-        const dot = row ? row.querySelector('.status-dot') : null;
-        if (dot instanceof HTMLElement) {
-          updateStatusDot(dot, entry);
+        entry.saldoLoja = parsed;
+        if (entry.registeredAt == null) {
+          entry.registeredAt = Date.now();
         }
-        updateInventorySummary();
-        syncStorage();
-      });
+      }
+      renderInventoryTables();
+      syncStorage();
+    };
+
+    if (inventoryRegisteredBody) {
+      inventoryRegisteredBody.addEventListener('input', handleSaldoInputChange);
+    }
+
+    if (inventoryWaitingBody) {
+      inventoryWaitingBody.addEventListener('input', handleSaldoInputChange);
     }
     const setPrintSurface = (element) => {
       if (!element) return;
@@ -1654,7 +1731,11 @@
       const manualSnapshot = new Map();
       inventoryData.forEach((entry) => {
         if (entry.saldoLoja != null) {
-          manualSnapshot.set(entry.codigo, { quantidade: entry.saldoLoja, manualOnly: entry.saldoContabil == null });
+          manualSnapshot.set(entry.codigo, {
+            quantidade: entry.saldoLoja,
+            manualOnly: entry.saldoContabil == null,
+            registeredAt: entry.registeredAt ?? Date.now()
+          });
         }
       });
 
@@ -1663,6 +1744,8 @@
         const existing = inventoryData.find((item) => item.codigo === code);
         if (existing) {
           existing.saldoLoja = info.quantidade;
+          existing.manualOnly = info.manualOnly && existing.saldoContabil == null;
+          existing.registeredAt = info.registeredAt ?? existing.registeredAt ?? Date.now();
         } else {
           inventoryData.push({
             codigo: code,
@@ -1670,12 +1753,13 @@
             saldoContabil: null,
             saldoTexto: '',
             saldoLoja: info.quantidade,
-            manualOnly: true
+            manualOnly: true,
+            registeredAt: info.registeredAt ?? Date.now()
           });
         }
       });
 
-      renderInventoryTable();
+      renderInventoryTables();
       syncStorage();
     };
 
@@ -1782,7 +1866,7 @@
 
     window.addEventListener('load', () => {
       loadStorage();
-      renderInventoryTable();
+      renderInventoryTables();
       updateInventorySummary();
       if (isContextSelected()) {
         focusAutoInput();

@@ -1368,20 +1368,19 @@
           );
           inventoryProductSelect.value = hasProductOption && payload.product ? payload.product : '';
         }
-        if (payload.lastCode) {
-          inventoryTotals.lastCode.textContent = payload.lastCode;
-        }
+        updateLastCode(payload.lastCode || '');
       } catch (error) {
         console.error('Erro ao carregar dados salvos', error);
       }
     };
 
     const updateLastCode = (code) => {
-      if (!code) {
+      const sanitized = sanitizeCode(code);
+      if (!sanitized) {
         inventoryTotals.lastCode.textContent = '---';
         return;
       }
-      inventoryTotals.lastCode.textContent = code;
+      inventoryTotals.lastCode.textContent = sanitized;
     };
 
     const applyQuantityToInventory = (code, quantity) => {

@@ -291,7 +291,9 @@
       color: white;
       box-shadow: 0 14px 28px rgba(63, 81, 181, 0.3);
       align-items: center;
+      justify-content: center;
       text-align: center;
+      gap: 10px;
     }
 
     .stat-card--highlight .stat-label,
@@ -954,7 +956,8 @@
       if (typeof value !== 'string') {
         return '';
       }
-      return value.replace(/[^\w-]/gi, '').toUpperCase();
+      const withoutTime = value.replace(/\(tempo:[^)]*\)/gi, '');
+      return withoutTime.replace(/[^\w-]/gi, '').toUpperCase();
     };
 
     const focusAutoInput = () => {

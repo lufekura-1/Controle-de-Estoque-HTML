@@ -10,6 +10,7 @@
       --chip-bg: #ffffff;
       --accent: #3f51b5;
       --accent-light: #5c6bc0;
+      --accent-dark: #243a82;
       --text: #1f2933;
       --muted: #52606d;
       --border-radius: 18px;
@@ -286,9 +287,11 @@
     }
 
     .stat-card--highlight {
-      background: var(--accent);
+      background: var(--accent-dark);
       color: white;
       box-shadow: 0 14px 28px rgba(63, 81, 181, 0.3);
+      align-items: center;
+      text-align: center;
     }
 
     .stat-card--highlight .stat-label,
@@ -297,8 +300,8 @@
     }
 
     .stat-card--highlight .stat-value {
-      font-size: 1.15rem;
-      letter-spacing: 0.5px;
+      font-size: 1.4rem;
+      letter-spacing: 1px;
     }
 
     .button.ghost {
@@ -359,6 +362,7 @@
       border-collapse: collapse;
       min-width: 320px;
       font-size: 0.95rem;
+      table-layout: fixed;
     }
 
     thead {
@@ -369,7 +373,32 @@
     th,
     td {
       padding: 10px 12px;
-      text-align: left;
+      text-align: center;
+    }
+
+    .inventory-table th:nth-child(1),
+    .inventory-table td:nth-child(1) {
+      width: 22%;
+    }
+
+    .inventory-table th:nth-child(2),
+    .inventory-table td:nth-child(2) {
+      width: 22%;
+    }
+
+    .inventory-table th:nth-child(3),
+    .inventory-table td:nth-child(3) {
+      width: 18%;
+    }
+
+    .inventory-table th:nth-child(4),
+    .inventory-table td:nth-child(4) {
+      width: 18%;
+    }
+
+    .inventory-table th:nth-child(5),
+    .inventory-table td:nth-child(5) {
+      width: 20%;
     }
 
     tbody tr:nth-child(even) {
@@ -758,7 +787,7 @@
         <div class="table-group">
           <div class="table-title">Cadastrados</div>
           <div class="table-wrapper">
-            <table>
+            <table class="inventory-table">
               <thead>
                 <tr>
                   <th>Código</th>
@@ -777,7 +806,7 @@
         <div class="table-group">
           <div class="table-title">Aguardando Cadastro</div>
           <div class="table-wrapper">
-            <table>
+            <table class="inventory-table">
               <thead>
                 <tr>
                   <th>Código</th>
@@ -918,8 +947,6 @@
 
     let inventoryData = [];
     let currentPrintSurface = null;
-    let lastEntryDurationMs = null;
-    let lastEntryMode = 'auto';
 
     const STORAGE_KEY = 'controle-estoque-inventory';
 
@@ -1346,17 +1373,12 @@
       }
     };
 
-    const updateLastCode = (code, durationMs, mode) => {
+    const updateLastCode = (code) => {
       if (!code) {
         inventoryTotals.lastCode.textContent = '---';
         return;
       }
-      if (mode === 'manual' || durationMs == null) {
-        inventoryTotals.lastCode.textContent = `${code} (Manual)`;
-      } else {
-        const seconds = (durationMs / 1000).toFixed(2);
-        inventoryTotals.lastCode.textContent = `${code} (Tempo: ${seconds}s)`;
-      }
+      inventoryTotals.lastCode.textContent = code;
     };
 
     const applyQuantityToInventory = (code, quantity) => {
@@ -1417,11 +1439,8 @@
               scanStartTime = null;
               return;
             }
-            const scanEnd = performance.now();
-            lastEntryDurationMs = scanStartTime ? scanEnd - scanStartTime : 0;
-            lastEntryMode = 'auto';
             applyQuantityToInventory(sanitized, 1);
-            updateLastCode(sanitized, lastEntryDurationMs, lastEntryMode);
+            updateLastCode(sanitized);
           }
           inventoryAutoInput.value = '';
           scanStartTime = null;
@@ -1482,10 +1501,8 @@
           alert('Informe uma quantidade válida.');
           return;
         }
-        lastEntryDurationMs = null;
-        lastEntryMode = 'manual';
         applyQuantityToInventory(code, quantity);
-        updateLastCode(code, lastEntryDurationMs, lastEntryMode);
+        updateLastCode(code);
         inventoryManualCodeInput.value = '';
         inventoryManualQtyInput.value = '1';
         focusAutoInput();
